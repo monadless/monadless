@@ -35,6 +35,13 @@ lazy val commonSettings = Seq(
     .setPreference(SpacesWithinPatternBinders, true)
     .setPreference(SpacesAroundMultiImports, true))
 
+lazy val `monadless` =
+  (project in file("."))
+    .settings(commonSettings)
+    .aggregate(
+      `monadless-core`, `monadless-examples`
+)
+
 lazy val `monadless-core` = project
   .settings(commonSettings: _*)
   .settings(
@@ -45,9 +52,9 @@ lazy val `monadless-core` = project
     scoverage.ScoverageKeys.coverageMinimum := 96,
     scoverage.ScoverageKeys.coverageFailOnMinimum := false)
 
-// lazy val `monadless-examples` = project
-//   .dependsOn(`monadless-core`)
-//   .settings(commonSettings: _*)
-//   .settings(
-//     libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.3",
-//     libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
+lazy val `monadless-examples` = project
+  .dependsOn(`monadless-core`)
+  .settings(commonSettings: _*)
+  .settings(
+    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.3",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")

@@ -18,9 +18,9 @@ object Transformer {
       def unapply(tree: Tree): Option[Tree] =
         c.untypecheck(tree) match {
 
-          case PureTree(tree)                    => None
+          case PureTree(tree) => None
 
-          case Typed(tree, tpe)                  => unapply(tree)
+          case Typed(tree, tpe) => unapply(tree)
 
           case q"{ ..$trees }" if trees.size > 1 => TransformBlock.unapply(trees)
 
@@ -79,7 +79,7 @@ object Transformer {
                 Some(q"if($a) ${c.prefix}(true) else $b")
             }
 
-          // TODO what if the monad creation throws before creating the monad?
+          // TODO what if the monad creation throws before creating the instance?
           case q"try $tryBlock catch { case ..$cases } finally $finallyBlock" =>
             val monad =
               (tryBlock, cases) match {
@@ -96,7 +96,7 @@ object Transformer {
               }
 
             finallyBlock match {
-              case EmptyTree    => Some(monad)
+              case EmptyTree => Some(monad)
               case finallyBlock => Some(q"${c.prefix}.ensure($monad)(${Transform(finallyBlock)})")
             }
 
@@ -113,7 +113,7 @@ object Transformer {
               }
 
             unlifts match {
-              case List()             => None
+              case List() => None
               case List((tree, name)) => Some(q"$tree.map(${toVal(name)} => $newTree)")
               case unlifts =>
                 val (trees, names) = unlifts.unzip
@@ -156,7 +156,7 @@ object Transformer {
 
         UnliftDefs(tree) match {
           case `tree` => tree
-          case tree   => UnliftDefs(tree)
+          case tree => UnliftDefs(tree)
         }
       }
     }
@@ -165,7 +165,7 @@ object Transformer {
       def apply(monad: Tree, name: TermName, body: Tree): Tree =
         body match {
           case Transform(body) => q"$monad.flatMap(${toVal(name)} => $body)"
-          case body            => q"$monad.map(${toVal(name)} => $body)"
+          case body => q"$monad.map(${toVal(name)} => $body)"
         }
     }
 
@@ -194,7 +194,7 @@ object Transformer {
         Trees.exists(c)(tree) {
           case q"$pack.unlift[$t]($v)" => true
         } match {
-          case true  => None
+          case true => None
           case false => Some(tree)
         }
     }
@@ -209,10 +209,10 @@ object Transformer {
           case true =>
             Some {
               cases.map {
-                case cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
-                case cq"$pattern => $body"                         => cq"$pattern => ${c.prefix}($body)"
+                case cq"$pattern => ${ Transform(body) }" => cq"$pattern => $body"
+                case cq"$pattern => $body" => cq"$pattern => ${c.prefix}($body)"
                 case cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
-                case cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${c.prefix}($body)"
+                case cq"$pattern if $cond => $body" => cq"$pattern if $cond => ${c.prefix}($body)"
               }
             }
           case false => None
@@ -240,16 +240,18 @@ object Transformer {
           case q"(..$params) => ${ t @ Transform(_) }" =>
             c.abort(t.pos, "Unlift can't be used in function bodies.")
 
-          case q"$method[..$t](...$values)" if values.size > 0 =>
+          case tree @ q"$method[..$t](...$values)" if values.size > 0 =>
             val pit = method.tpe.paramLists.flatten.iterator
             val vit = values.flatten.iterator
-            while (pit.hasNext) {
-              val param = pit.next()
-              val value = vit.next()
-              (param.asTerm.isByNameParam, value) match {
-                case (true, t @ Transform(_)) =>
-                  c.abort(t.pos, "Unlift can't be used as by-name param.")
-                case other => ()
+            if (pit.size == vit.size) {
+              while (pit.hasNext) {
+                val param = pit.next()
+                val value = vit.next()
+                (param.asTerm.isByNameParam, value) match {
+                  case (true, t @ Transform(_)) =>
+                    c.abort(t.pos, "Unlift can't be used as by-name param.")
+                  case other => ()
+                }
               }
             }
 
@@ -278,7 +280,7 @@ object Transformer {
     c.resetAllAttrs {
       TransformDefs(tree) match {
         case PureTree(tree) => q"${c.prefix}($tree)"
-        case tree           => Transform(tree)
+        case tree => Transform(tree)
       }
     }
   }

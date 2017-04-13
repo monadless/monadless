@@ -8,7 +8,6 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future }
 import scala.async.Async.{ async, await }
 import scala.collection.mutable
-import scala.util.{ Failure, Success, Try }
 
 trait ExampleHelper {
   val wsClient = NingWSClient()
@@ -27,7 +26,6 @@ trait ExampleHelper {
     }
 
   val monadlessFuture = new MonadlessFuture
-  //  val monadlessTry = new MonadlessTry
 }
 
 object SimpleExample extends App with ExampleHelper {
@@ -52,6 +50,8 @@ object SimpleExample extends App with ExampleHelper {
     responseToString(unlift(goodRequest.get)) + responseToString(unlift(goodRequest.get))
   }
   println("responseStringMonadless: " + Await.result(responseStringMonadless, Duration.Inf))
+  
+  wsClient.close()
 }
 
 object ExceptionalExample extends App with ExampleHelper {
@@ -93,6 +93,8 @@ object ExceptionalExample extends App with ExampleHelper {
     firstResponse + secondResponse
   }
   println("catchExample: " + Await.result(catchExample, Duration.Inf))
+  
+  wsClient.close()
 }
 
 object ControlExample extends App with ExampleHelper {
@@ -144,24 +146,6 @@ object ControlExample extends App with ExampleHelper {
 
   val listResultsB: Future[List[Int]] = loop(List())
   println("listResultsB: " + Await.result(listResultsB, Duration.Inf))
+  
+  wsClient.close()
 }
-
-//object TryExample extends App with ExampleHelper {
-//
-//  import monadlessTry._
-//
-//  def confusedTokenizer(input: String): Try[List[String]] = {
-//    input.split(",").toList match {
-//      case _ :: Nil => Failure(new RuntimeException("string had no commas"))
-//      case list => Success(list)
-//    }
-//  }
-//
-//  def tryExample(string: String): Try[List[String]] = lift {
-//    unlift(confusedTokenizer(string)).map(element => element + "A")
-//  }
-//
-//  println("tryExample1:" + tryExample("string with no commas"))
-//  println("tryExample2:" + tryExample("string,with,commas"))
-//}
-//

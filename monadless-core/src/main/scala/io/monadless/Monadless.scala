@@ -1,7 +1,6 @@
 package io.monadless
 
 import scala.reflect.macros.blackbox.Context
-//import scala.annotation.compileTimeOnly
 import language.experimental.macros
 import language.higherKinds
 
@@ -20,7 +19,6 @@ trait Monadless[M[_]] {
 
   def lift[T](body: T): M[T] = macro Macro.lift[M, T]
 
-  //  @compileTimeOnly("`unlift` must be used within `lift`")
   def unlift[T](m: M[T]): T = ???
 }
 
@@ -31,9 +29,8 @@ private[monadless] class Macro(val c: Context) {
     val tree = Transformer[M](c)(body.tree)
     Trees.traverse(c)(tree) {
       case tree @ q"$pack.unlift[$t]($v)" =>
-        c.error(tree.pos, "Invalid unlift position")
+        c.error(tree.pos, "Unsupported unlift position")
     }
-    //    c.info(c.enclosingPosition, tree.toString, false)
     tree
   }
 }

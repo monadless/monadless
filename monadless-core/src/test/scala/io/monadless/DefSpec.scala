@@ -62,7 +62,7 @@ class DefSpec extends Spec {
       runLiftTest(2) {
         def a1(s: String) = {
           def a2(i: Int) = unlift(lift(i)) + 1
-          a2(unlift(lift(s.toInt)))
+          a2(s.toInt)
         }
         a1("1")
       }
