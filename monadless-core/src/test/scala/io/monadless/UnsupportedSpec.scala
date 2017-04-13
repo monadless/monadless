@@ -54,6 +54,13 @@ class UnsupportedSpec extends Spec {
     }
   }
 
+  "unlifited param of unlifted method" in pendingUntilFixed {
+    runLiftTest(3) {
+      def a(i: Int) = unlift(lift(i + 1))
+      a(unlift(lift(1))) + 1
+    }
+  }
+
   "functions" in pendingUntilFixed {
     runLiftTest(1) {
       val f = (i: Int) => unlift(lift(i))

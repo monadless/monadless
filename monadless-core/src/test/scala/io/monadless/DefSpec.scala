@@ -2,11 +2,6 @@ package io.monadless
 
 class DefSpec extends Spec {
 
-  //  lift {
-  //        def a(i: Int) = unlift(lift(i + 1))
-  //        a(unlift(lift(1))) + 1
-  //      }
-
   "pure" - {
     "no params" in
       runLiftTest(3) {
@@ -57,11 +52,6 @@ class DefSpec extends Spec {
         def a(i: Int)(s: String) = unlift(lift(i)) + unlift(lift(s.toInt))
         a(1)("2") + a(0)("1")
       }
-    //    "unlifited param" in
-    //      lift {
-    //        def a(i: Int) = unlift(lift(i + 1))
-    //        a(unlift(lift(1))) + 1
-    //      }
     "multiple methods" in
       runLiftTest(5) {
         def a(i: Int) = unlift(lift(i + 1))

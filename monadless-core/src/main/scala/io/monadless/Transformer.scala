@@ -128,17 +128,6 @@ object Transformer {
       def apply(tree: Tree): Tree = {
         var unlifted = Set[Symbol]()
 
-        object Rebind {
-          def apply(tree: Tree): Tree =
-            Trees.Transform(c)(tree) {
-              case tree @ q"$method(..$params)" if unlifted.contains(method.symbol) =>
-                q"${c.prefix}.unlift[${tree.tpe}]($tree)"
-
-              case tree if unlifted.contains(tree.symbol) =>
-                q"${c.prefix}.unlift[${tree.tpe}]($tree)"
-            }
-        }
-
         object UnliftDefs {
           def apply(tree: Tree): Tree =
             Trees.Transform(c)(tree) {
@@ -154,8 +143,8 @@ object Transformer {
 
               case tree @ q"$method(..$params)" if unlifted.contains(method.symbol) =>
                 tree match {
-                  case Transform(q"$monad.map[..$t]($body)") =>
-                    q"$monad.flatMap[..$t]($body)"
+                  case Transform(_) =>
+                    c.abort(c.enclosingPosition, "Can't unlift parameters of a method with unlifted body.")
                   case tree =>
                     q"${c.prefix}.unlift[${tree.tpe}]($tree)"
                 }
