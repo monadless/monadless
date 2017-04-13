@@ -168,7 +168,7 @@ object Transformer {
         }
 
         UnliftDefs(tree) match {
-          case `tree` => debug(tree)
+          case `tree` => tree
           case tree   => UnliftDefs(tree)
         }
       }
@@ -242,14 +242,14 @@ object Transformer {
           case q"$v match { case ..$cases }" =>
             cases.foreach {
               case cq"$pattern if ${ t @ Transform(_) } => $body" =>
-                c.abort(t.pos, s"Unlift can't be used as a case guard: $t")
+                c.abort(t.pos, s"Unlift can't be used as a case guard.")
               case other => ()
             }
 
           case t @ q"return $v" =>
             c.abort(t.pos, "Lifted expression can't contain `return` statements.")
 
-          case q"lazy val $name = ${ t @ Transform(_) }" =>
+          case q"$mods def $name = ${ t @ Transform(_) }" if mods.hasFlag(Flag.LAZY) =>
             c.abort(t.pos, "Unlift can't be used as a lazy val initializer.")
 
           case q"(..$params) => ${ t @ Transform(_) }" =>
@@ -294,7 +294,7 @@ object Transformer {
     c.resetAllAttrs {
       TransformDefs(tree) match {
         case PureTree(tree) => q"${c.prefix}($tree)"
-        case tree           => debug(Transform(tree))
+        case tree           => Transform(tree)
       }
     }
   }

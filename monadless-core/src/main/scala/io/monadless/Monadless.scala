@@ -33,7 +33,7 @@ private[monadless] class Macro(val c: Context) {
       case tree @ q"$pack.unlift[$t]($v)" =>
         c.error(tree.pos, "Invalid unlift position")
     }
-    c.info(c.enclosingPosition, tree.toString, false)
+//    c.info(c.enclosingPosition, tree.toString, false)
     tree
   }
 }

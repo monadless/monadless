@@ -26,12 +26,12 @@ class UnsupportedSpec extends Spec {
     }
   }
 
-  //  "lazy val" in {
-  //    lift {
-  //      lazy val v = unlift(lift(1))
-  //      v + 1
-  //    }
-  //  }
+  "lazy val" in pendingUntilFixed {
+    runLiftTest(2) {
+      lazy val v = unlift(lift(1))
+      v + 1
+    }
+  }
 
   "by-name param" - {
     "one param" in pendingUntilFixed {
