@@ -51,9 +51,10 @@ private[monadless] class TestSupportMacro(val c: Context) {
     }
 
   def typecheckToTry(tree: Tree, name: String): Tree = {
-    c.info(c.enclosingPosition, s"$name: $tree", force = false)
     try {
-      q"scala.util.Try(${c.typecheck(c.resetAllAttrs(tree))})"
+      val typeCheckedTree = c.typecheck(c.resetAllAttrs(tree))
+      c.info(c.enclosingPosition, s"$name: $typeCheckedTree", force = false)
+      q"scala.util.Try($typeCheckedTree)"
     } catch {
       case e: TypecheckException =>
         val msg = s"$name fails typechecking: $e"
