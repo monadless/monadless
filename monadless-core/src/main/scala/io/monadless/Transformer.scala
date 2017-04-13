@@ -22,8 +22,6 @@ object Transformer {
 
           case Typed(tree, tpe)                  => unapply(tree)
 
-          //          case q"$mods def $name(..$params): $r = $body" => None
-
           case q"{ ..$trees }" if trees.size > 1 => TransformBlock.unapply(trees)
 
           case q"if(${ Transform(monad) }) $ifTrue else $ifFalse" =>
@@ -175,12 +173,11 @@ object Transformer {
     }
 
     object Nest {
-      def apply(monad: Tree, name: TermName, body: Tree): Tree = {
+      def apply(monad: Tree, name: TermName, body: Tree): Tree =
         body match {
           case Transform(body) => q"$monad.flatMap(${toVal(name)} => $body)"
           case body            => q"$monad.map(${toVal(name)} => $body)"
         }
-      }
     }
 
     object TransformBlock {
@@ -199,8 +196,7 @@ object Transformer {
           case head :: TransformBlock(q"{ ..$tail }") =>
             Some(q"{ $head; ..$tail }")
 
-          case other =>
-            None
+          case other => None
         }
     }
 
@@ -277,7 +273,6 @@ object Transformer {
     def toVal(name: TermName) = q"val $name = $EmptyTree"
     def wildcard = TermName("_")
     def freshName = TermName(c.freshName("x"))
-    def freshVal = toVal(freshName)
     def monadType(payload: Type) =
       m.tpe.erasure.map { t =>
         if (t == c.typeOf[Any]) payload
