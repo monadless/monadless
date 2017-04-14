@@ -241,17 +241,15 @@ object Transformer {
             c.abort(t.pos, "Unlift can't be used in function bodies.")
 
           case tree @ q"$method[..$t](...$values)" if values.size > 0 =>
-            val pit = method.tpe.paramLists.flatten.iterator
+            val pit = method.symbol.asMethod.paramLists.flatten.iterator
             val vit = values.flatten.iterator
-            if (pit.size == vit.size) {
-              while (pit.hasNext) {
-                val param = pit.next()
-                val value = vit.next()
-                (param.asTerm.isByNameParam, value) match {
-                  case (true, t @ Transform(_)) =>
-                    c.abort(t.pos, "Unlift can't be used as by-name param.")
-                  case other => ()
-                }
+            while (pit.hasNext && vit.hasNext) {
+              val param = pit.next()
+              val value = vit.next()
+              (param.asTerm.isByNameParam, value) match {
+                case (true, t @ Transform(_)) =>
+                  c.abort(t.pos, "Unlift can't be used as by-name param.")
+                case other => ()
               }
             }
 
