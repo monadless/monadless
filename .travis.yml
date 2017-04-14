@@ -1,0 +1,16 @@
+branches:
+  except:
+  - release
+  - website
+script:
+- ./build/build.sh
+after_success:
+- pip install --user codecov && codecov
+cache:
+  directories:
+  - $HOME/.ivy2/cache
+  - $HOME/.sbt/boot/
+sudo: false
+env:
+  global:
+    secure: insYEsBVaphM5lVzXfqcXK1+glBnH0xZnf6UkTXDAJU0hBzEzDxMxaDSejegF1dI27QIJpaD/zXP3lTnwfx22QIfQAxKSG+BrIBY51B+xExEOudxIagLaC4y+/tdrT++fWFcaYL5hAdWMSsrXFSw9VR48NmFS2VyNzwWqLOISC0yY2q/5UmEBO3eCLeZW8JgsCoCJnQCoCzUU9pAnx7grExgyJWjfVXh8DARqzWHq7HEpYnG6eGaAqdXuQAi4gQhgkD0EaqdxUjC0M/Rao1Apguzy7ibee4U2xv2QQowfyyNVJf+7KY592XC31wPgJ3X7nOgZjCZo8HVVV1gSilx6AKH0RCzCt/aBke094KzD0RT93b9n9PAJi4cThZP+1HF8gLN/jBwU7Rz7UEYAan538ArUcFYGqxiIvUWOZxGqd7IGWcCA8Jliwsh15g1ezdC9Mzi0oJ7BTtds2KKR7koSxPgew9c2ss/3KJnn3eNdwxK11D3ZragNJmUG3usWFp/EAy+o+B3y8kxUadgYnjjQAHsiKUnUISN94B0kP6leAEXooGbES4Ve9tg0rdqPntZm50ZDWUIx9/kih+uXtrzhXqWcgQ7M3DvfhgX0dz5/IBgZsVrT6OsJPr2WHRN+MNyVshaOy4a6WRQx55Fo9/7bH3xT+HkBESauIcGSIWvMbo=

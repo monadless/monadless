@@ -1,6 +1,64 @@
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import scalariform.formatter.preferences._
 
+lazy val `monadless` =
+  (project in file("."))
+    .settings(tutSettings ++ commonSettings)
+    .aggregate(
+      `monadless-core`, `monadless-examples`
+)
+
+lazy val `monadless-core` = project
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalamacros" %% "resetallattrs" % "1.0.0",
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scalatest" % "scalatest_2.11" % "3.0.1" % "test"),
+    scoverage.ScoverageKeys.coverageMinimum := 96,
+    scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+
+lazy val `monadless-examples` = project
+  .dependsOn(`monadless-core`)
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.3",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
+
+def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
+  ReleaseStep(action = st => {
+
+    val newVersion = selectVersion(st.get(ReleaseKeys.versions).get)
+
+    import scala.io.Source
+    import java.io.PrintWriter
+
+    val pattern = """"io.monadless" %% "monadless" % "(.*)"""".r
+
+    val fileName = "README.md"
+    val content = Source.fromFile(fileName).getLines.mkString("\n")
+
+    val newContent =
+      pattern.replaceAllIn(content,
+        m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
+
+    new PrintWriter(fileName) { write(newContent); close }
+
+    val vcs = Project.extract(st).get(releaseVcs).get
+    vcs.add(fileName).!
+
+    st
+  })
+
+def updateWebsiteTag =
+  ReleaseStep(action = st => {
+
+    val vcs = Project.extract(st).get(releaseVcs).get
+    vcs.tag("website", "update website", force = true).!
+
+    st
+  })
+
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.8",
   organization := "io.monadless",
@@ -33,28 +91,88 @@ lazy val commonSettings = Seq(
     .setPreference(IndentSpaces, 2)
     .setPreference(IndentLocalDefs, false)
     .setPreference(SpacesWithinPatternBinders, true)
-    .setPreference(SpacesAroundMultiImports, true))
-
-lazy val `monadless` =
-  (project in file("."))
-    .settings(commonSettings)
-    .aggregate(
-      `monadless-core`, `monadless-examples`
+    .setPreference(SpacesAroundMultiImports, true),
+  scoverage.ScoverageKeys.coverageMinimum := 96,
+  scoverage.ScoverageKeys.coverageFailOnMinimum := false,
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  publishMavenStyle := true,
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value)
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+  },
+  pgpSecretRing := file("local.secring.gpg"),
+  pgpPublicRing := file("local.pubring.gpg"),
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runClean,
+    runTest,
+    setReleaseVersion,
+    updateReadmeVersion(_._1),
+    commitReleaseVersion,
+    updateWebsiteTag,
+    tagRelease,
+    ReleaseStep(action = Command.process("publishSigned", _)),
+    setNextVersion,
+    updateReadmeVersion(_._2),
+    commitNextVersion,
+    ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+    pushChanges
+  ),
+  pomExtra := (
+    <url>http://github.com/monadless/monadless</url>
+    <licenses>
+      <license>
+        <name>Apache License 2.0</name>
+        <url>https://raw.githubusercontent.com/monadless/monadless/master/LICENSE.txt</url>
+        <distribution>repo</distribution>
+      </license>
+    </licenses>
+    <scm>
+      <url>git@github.com:monadless/monadless.git</url>
+      <connection>scm:git:git@github.com:monadless/monadless.git</connection>
+    </scm>
+    <developers>
+      <developer>
+        <id>fwbrasil</id>
+        <name>Flavio W. Brasil</name>
+        <url>http://github.com/fwbrasil/</url>
+      </developer>
+      <developer>
+        <id>sameerparekh</id>
+        <name>Sameer Parekh</name>
+        <url>http://github.com/sameerparekh/</url>
+      </developer>
+    </developers>)
 )
 
-lazy val `monadless-core` = project
-  .settings(commonSettings: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scalamacros" %% "resetallattrs" % "1.0.0",
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "org.scalatest" % "scalatest_2.11" % "3.0.1" % "test"),
-    scoverage.ScoverageKeys.coverageMinimum := 96,
-    scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+lazy val `tut-sources` = Seq(
+  "README.md"
+)
 
-lazy val `monadless-examples` = project
-  .dependsOn(`monadless-core`)
-  .settings(commonSettings: _*)
-  .settings(
-    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.3",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
+lazy val `tut-settings` = Seq(
+  tutScalacOptions := Seq(),
+  tutSourceDirectory := baseDirectory.value / "target" / "tut",
+  tutNameFilter := `tut-sources`.map(_.replaceAll("""\.""", """\.""")).mkString("(", "|", ")").r,
+  sourceGenerators in Compile +=
+    Def.task {
+      `tut-sources`.foreach { name =>
+        val source = baseDirectory.value / name
+        val file = baseDirectory.value / "target" / "tut" / name
+        val str = IO.read(source).replace("```scala", "```tut")
+        IO.write(file, str)
+      }
+      Seq()
+    }.taskValue
+)
+
+commands += Command.command("checkUnformattedFiles") { st =>
+  val vcs = Project.extract(st).get(releaseVcs).get
+  val modified = vcs.cmd("ls-files", "--modified", "--exclude-standard").!!.trim
+  if(modified.nonEmpty)
+    throw new IllegalStateException(s"Please run `sbt scalariformFormat test:scalariformFormat` and resubmit your pull request. Found unformatted files: \n$modified")
+  st
+}
