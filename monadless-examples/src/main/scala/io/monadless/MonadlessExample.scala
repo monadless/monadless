@@ -50,7 +50,7 @@ object SimpleExample extends App with ExampleHelper {
     responseToString(unlift(goodRequest.get)) + responseToString(unlift(goodRequest.get))
   }
   println("responseStringMonadless: " + Await.result(responseStringMonadless, Duration.Inf))
-  
+
   wsClient.close()
 }
 
@@ -93,7 +93,7 @@ object ExceptionalExample extends App with ExampleHelper {
     firstResponse + secondResponse
   }
   println("catchExample: " + Await.result(catchExample, Duration.Inf))
-  
+
   wsClient.close()
 }
 
@@ -146,6 +146,6 @@ object ControlExample extends App with ExampleHelper {
 
   val listResultsB: Future[List[Int]] = loop(List())
   println("listResultsB: " + Await.result(listResultsB, Duration.Inf))
-  
+
   wsClient.close()
 }

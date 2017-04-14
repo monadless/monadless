@@ -18,9 +18,9 @@ object Transformer {
       def unapply(tree: Tree): Option[Tree] =
         c.untypecheck(tree) match {
 
-          case PureTree(tree) => None
+          case PureTree(tree)                    => None
 
-          case Typed(tree, tpe) => unapply(tree)
+          case Typed(tree, tpe)                  => unapply(tree)
 
           case q"{ ..$trees }" if trees.size > 1 => TransformBlock.unapply(trees)
 
@@ -96,7 +96,7 @@ object Transformer {
               }
 
             finallyBlock match {
-              case EmptyTree => Some(monad)
+              case EmptyTree    => Some(monad)
               case finallyBlock => Some(q"${c.prefix}.ensure($monad)(${Transform(finallyBlock)})")
             }
 
@@ -113,7 +113,7 @@ object Transformer {
               }
 
             unlifts match {
-              case List() => None
+              case List()             => None
               case List((tree, name)) => Some(q"$tree.map(${toVal(name)} => $newTree)")
               case unlifts =>
                 val (trees, names) = unlifts.unzip
@@ -156,7 +156,7 @@ object Transformer {
 
         UnliftDefs(tree) match {
           case `tree` => tree
-          case tree => UnliftDefs(tree)
+          case tree   => UnliftDefs(tree)
         }
       }
     }
@@ -165,7 +165,7 @@ object Transformer {
       def apply(monad: Tree, name: TermName, body: Tree): Tree =
         body match {
           case Transform(body) => q"$monad.flatMap(${toVal(name)} => $body)"
-          case body => q"$monad.map(${toVal(name)} => $body)"
+          case body            => q"$monad.map(${toVal(name)} => $body)"
         }
     }
 
@@ -194,7 +194,7 @@ object Transformer {
         Trees.exists(c)(tree) {
           case q"$pack.unlift[$t]($v)" => true
         } match {
-          case true => None
+          case true  => None
           case false => Some(tree)
         }
     }
@@ -209,10 +209,10 @@ object Transformer {
           case true =>
             Some {
               cases.map {
-                case cq"$pattern => ${ Transform(body) }" => cq"$pattern => $body"
-                case cq"$pattern => $body" => cq"$pattern => ${c.prefix}($body)"
+                case cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
+                case cq"$pattern => $body"                         => cq"$pattern => ${c.prefix}($body)"
                 case cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
-                case cq"$pattern if $cond => $body" => cq"$pattern if $cond => ${c.prefix}($body)"
+                case cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${c.prefix}($body)"
               }
             }
           case false => None
@@ -278,7 +278,7 @@ object Transformer {
     c.resetAllAttrs {
       TransformDefs(tree) match {
         case PureTree(tree) => q"${c.prefix}($tree)"
-        case tree => Transform(tree)
+        case tree           => Transform(tree)
       }
     }
   }
