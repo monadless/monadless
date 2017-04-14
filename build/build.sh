@@ -1,7 +1,5 @@
 #!/bin/bash
 set -e # Any subsequent(*) commands which fail will cause the shell script to exit immediately
-chown root ~/.ssh/config
-chmod 644 ~/.ssh/config
 
 if [[ $TRAVIS_PULL_REQUEST == "false" ]]
 then
