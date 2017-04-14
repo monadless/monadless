@@ -1,5 +1,7 @@
+import ReleaseTransformations._
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import scalariform.formatter.preferences._
+import sbtrelease.ReleasePlugin
 
 lazy val `monadless` =
   (project in file("."))
