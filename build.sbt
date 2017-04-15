@@ -18,7 +18,7 @@ lazy val `monadless` =
   (project in file("."))
     .settings(tutSettings ++ commonSettings)
     .aggregate(
-      `monadless-core-jvm`, `monadless-core-js`, `monadless-examples`
+      `monadless-core-jvm`, `monadless-core-js`//, `monadless-examples`
 )
 
 lazy val `monadless-core` = 
@@ -39,12 +39,12 @@ lazy val `monadless-core` =
 lazy val `monadless-core-jvm` = `monadless-core`.jvm
 lazy val `monadless-core-js` = `monadless-core`.js
 
-lazy val `monadless-examples` = project
-  .dependsOn(`monadless-core-jvm`)
-  .settings(commonSettings)
-  .settings(
-    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.6.0-M4",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
+// lazy val `monadless-examples` = project
+//   .dependsOn(`monadless-core-jvm`)
+//   .settings(commonSettings)
+//   .settings(
+//     libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.6.0-M4",
+//     libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
 
 def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
   ReleaseStep(action = st => {
