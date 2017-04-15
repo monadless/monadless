@@ -16,7 +16,7 @@ then
 		git config --global user.name "Monadless CI"
 		git config --global user.email "ci@monadless.io"
 		git remote set-url origin git@github.com:monadless/monadless.git
-		git fetch --unshallow
+		git fetch
 		git checkout master || git checkout -b master
 		git reset --hard origin/master
 		git push --delete origin website
