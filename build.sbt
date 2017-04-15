@@ -178,3 +178,4 @@ commands += Command.command("checkUnformattedFiles") { st =>
     throw new IllegalStateException(s"Please run `sbt scalariformFormat test:scalariformFormat` and resubmit your pull request. Found unformatted files: \n$modified")
   st
 }
+
