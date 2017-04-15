@@ -20,7 +20,7 @@ then
 		git checkout master || git checkout -b master
 		git reset --hard origin/master
 		git push --delete origin website
-		sbt tut 'release with-defaults'
+		sbt +tut +'release with-defaults'
 	elif [[ $TRAVIS_BRANCH == "master" ]]
 	then
 		sbt ++2.11.8 clean coverage test tut coverageReport coverageAggregate checkUnformattedFiles
