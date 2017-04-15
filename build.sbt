@@ -3,25 +3,41 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import scalariform.formatter.preferences._
 import sbtrelease.ReleasePlugin
 
+lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
+  def projectDir(crossBase: File, projectType: String): File =
+    projectType match {
+      case "jvm" => crossBase
+      case "js"  => crossBase / s".$projectType"
+    }
+
+  def sharedSrcDir(projectBase: File, conf: String): Option[File] =
+    Some(projectBase.getParentFile / "src" / conf / "scala")
+}
+
 lazy val `monadless` =
   (project in file("."))
     .settings(tutSettings ++ commonSettings)
     .aggregate(
-      `monadless-core`, `monadless-examples`
+      `monadless-core-jvm`, `monadless-core-js`, `monadless-examples`
 )
 
-lazy val `monadless-core` = project
-  .settings(commonSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scalamacros" %% "resetallattrs" % "1.0.0",
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "org.scalatest" % "scalatest_2.11" % "3.0.1" % "test"),
-    scoverage.ScoverageKeys.coverageMinimum := 96,
-    scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+lazy val `monadless-core` = 
+  crossProject.crossType(superPure)
+    .settings(commonSettings)
+    .settings(
+      name := "monadless-core",
+      libraryDependencies ++= Seq(
+        "org.scalamacros" %% "resetallattrs" % "1.0.0",
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+        "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
+      scoverage.ScoverageKeys.coverageMinimum := 96,
+      scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+
+lazy val `monadless-core-jvm` = `monadless-core`.jvm
+lazy val `monadless-core-js` = `monadless-core`.js
 
 lazy val `monadless-examples` = project
-  .dependsOn(`monadless-core`)
+  .dependsOn(`monadless-core-jvm`)
   .settings(commonSettings)
   .settings(
     libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.3",
