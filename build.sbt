@@ -32,6 +32,9 @@ lazy val `monadless-core` =
         "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+    .jsSettings(
+      coverageExcludedPackages := ".*"
+    )
 
 lazy val `monadless-core-jvm` = `monadless-core`.jvm
 lazy val `monadless-core-js` = `monadless-core`.js
