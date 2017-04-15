@@ -43,7 +43,7 @@ lazy val `monadless-examples` = project
   .dependsOn(`monadless-core-jvm`)
   .settings(commonSettings)
   .settings(
-    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.3",
+    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.6.0-M4",
     libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
 
 def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
