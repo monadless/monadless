@@ -234,6 +234,9 @@ object Transformer {
           case t @ q"return $v" =>
             c.abort(t.pos, "Lifted expression can't contain `return` statements.")
 
+          case q"$mods val $name = ${ t @ Transform(_) }" if mods.hasFlag(Flag.LAZY) =>
+            c.abort(t.pos, "Unlift can't be used as a lazy val initializer.")
+
           case q"$mods def $name = ${ t @ Transform(_) }" if mods.hasFlag(Flag.LAZY) =>
             c.abort(t.pos, "Unlift can't be used as a lazy val initializer.")
 
