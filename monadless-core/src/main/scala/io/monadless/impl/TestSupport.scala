@@ -56,7 +56,10 @@ private[monadless] class TestSupportMacro(val c: Context) {
       q"scala.util.Try($typeCheckedTree)"
     } catch {
       case e: TypecheckException =>
-        val msg = s"$name fails typechecking: $e"
+        val msg = s"""
+          |$name fails typechecking: $e
+          |tree: $tree
+          |""".stripMargin
         c.info(e.pos.asInstanceOf[Position], msg, force = true)
         q"""scala.util.Failure(new Exception($msg))"""
     }
