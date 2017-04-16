@@ -3,7 +3,9 @@ package io.monadless
 import language.experimental.macros
 import language.higherKinds
 
-trait Monadless[M[_]] {
+trait Monadless {
+  
+  type M[T]
 
   /* "ghost" methods 
 
@@ -16,7 +18,7 @@ trait Monadless[M[_]] {
   
   */
 
-  def lift[T](body: T): M[T] = macro impl.Macro.lift[M, T]
+  def lift[T](body: T): M[T] = macro impl.Macro.lift[T]
 
   def unlift[T](m: M[T]): T = ???
 }

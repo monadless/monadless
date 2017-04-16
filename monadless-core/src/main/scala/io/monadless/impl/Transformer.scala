@@ -1,12 +1,11 @@
 package io.monadless.impl
 
-import scala.language.higherKinds
 import scala.reflect.macros.blackbox.Context
 import org.scalamacros.resetallattrs._
 
 private[monadless] object Transformer {
 
-  def apply[M[_]](c: Context)(tree: c.Tree)(implicit m: c.WeakTypeTag[M[_]]): c.Tree = {
+  def apply(c: Context)(tree: c.Tree): c.Tree = {
     import c.universe._
 
     object Transform {
@@ -264,11 +263,7 @@ private[monadless] object Transformer {
     def toVal(name: TermName) = q"val $name = $EmptyTree"
     def wildcard = TermName("_")
     def freshName = TermName(c.freshName("x"))
-    def monadType(payload: Type) =
-      m.tpe.erasure.map { t =>
-        if (t == c.typeOf[Any]) payload
-        else t
-      }
+    def monadType(tpe: Type) = tq"${c.prefix}.M[$tpe]"
     def unitMonadType = monadType(c.typeOf[Unit])
     def debug[T](v: T) = {
       c.warning(c.enclosingPosition, v.toString)

@@ -9,9 +9,11 @@ import io.monadless.impl.TestSupport
 trait Spec
   extends org.scalatest.FreeSpec
   with MustMatchers
-  with Monadless[Try]
+  with Monadless
   with TestSupport[Try] {
 
+  type M[T] = Try[T]
+  
   def apply[T](v: => T) = Try(v)
   def join[T1, T2](m1: Try[T1], m2: Try[T2]) =
     for {
