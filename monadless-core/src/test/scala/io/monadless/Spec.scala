@@ -13,13 +13,18 @@ trait Spec
   with TestSupport[Try] {
 
   type M[T] = Try[T]
-  
+
   def apply[T](v: => T) = Try(v)
-  def join[T1, T2](m1: Try[T1], m2: Try[T2]) =
-    for {
-      a <- m1
-      b <- m2
-    } yield (a, b)
+
+  def collect[T](list: List[Try[T]]): Try[List[T]] =
+    list.foldLeft(Try(List.empty[T])) {
+      (acc, item) =>
+        for {
+          l <- acc
+          i <- item
+        } yield l :+ i
+    }
+
   def get[T](m: Try[T]): T = m.get
   def handle[T](m: Try[T])(pf: PartialFunction[Throwable, T]) = m.recover(pf)
   def rescue[T](m: Try[T])(pf: PartialFunction[Throwable, Try[T]]) = m.recoverWith(pf)

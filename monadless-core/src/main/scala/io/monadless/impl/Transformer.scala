@@ -23,7 +23,7 @@ private[monadless] object Transformer {
           case q"{ ..$trees }" if trees.size > 1 => TransformBlock.unapply(trees)
 
           case q"if(${ Transform(monad) }) $ifTrue else $ifFalse" =>
-            val name = freshName
+            val name = freshName()
             val body = q"if($name) $ifTrue else $ifFalse"
             Some(Nest(monad, name, body))
 
@@ -40,7 +40,7 @@ private[monadless] object Transformer {
             }
 
           case q"${ Transform(monad) } match { case ..$cases }" =>
-            val name = freshName
+            val name = freshName()
             val body = q"$name match { case ..$cases }"
             Some(Nest(monad, name, body))
 
@@ -105,7 +105,7 @@ private[monadless] object Transformer {
             val newTree =
               Trees.Transform(c)(tree) {
                 case q"$pack.unlift[$t]($v)" =>
-                  val name = freshName
+                  val name = freshName()
                   unlifts :+= ((v, name))
                   q"$name"
               }
@@ -116,7 +116,18 @@ private[monadless] object Transformer {
               case unlifts =>
                 val (trees, names) = unlifts.unzip
                 val binds = names.map(name => pq"$name @ _")
-                Some(q"${c.prefix}.join(..$trees).map { case (..$binds) => $newTree }")
+                val list = freshName("list")
+                val iterator = freshName("iterator")
+                Some(
+                  q"""
+                    ${c.prefix}.collect(scala.List(..$trees)).map { ${toVal(list)} =>
+                      val $iterator = $list.iterator
+                      def read[T](m: ${c.prefix}.M[T]): T = $iterator.next.asInstanceOf[T]
+                      ..${unlifts.map { case (tree, name) => q"val $name = read($tree)" }}
+                      $newTree
+                    }
+                  """
+                )
             }
         }
     }
@@ -262,7 +273,7 @@ private[monadless] object Transformer {
 
     def toVal(name: TermName) = q"val $name = $EmptyTree"
     def wildcard = TermName("_")
-    def freshName = TermName(c.freshName("x"))
+    def freshName(x: String = "x") = TermName(c.freshName(x))
     def monadType(tpe: Type) = tq"${c.prefix}.M[$tpe]"
     def unitMonadType = monadType(c.typeOf[Unit])
     def debug[T](v: T) = {

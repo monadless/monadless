@@ -4,13 +4,13 @@ import language.experimental.macros
 import language.higherKinds
 
 trait Monadless {
-  
+
   type M[T]
 
   /* "ghost" methods 
 
     def apply[T](v: => T): M[T]
-    def join[T1, T2](m1: M[T1], m2: M[T2]): M[(T1, T2)]
+    def collect[T](list: M[T]): M[List[T]]
     def get[T](m: M[T]): T
     def handle[T](m: M[T])(pf: PartialFunction[Throwable, T]): M[T]
     def rescue[T](m: M[T])(pf: PartialFunction[Throwable, M[T]]): M[T]
