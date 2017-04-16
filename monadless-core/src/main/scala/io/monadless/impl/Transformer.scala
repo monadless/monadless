@@ -86,7 +86,7 @@ private[monadless] object Transformer {
                 case (Transform(tryBlock), Nil) =>
                   q"$tryBlock"
                 case (Transform(tryBlock), cases) =>
-                  q"${c.prefix}.handle($tryBlock) { case ..$cases }"
+                  q"${c.prefix}.rescue($tryBlock) { case ..${TransformCases(cases)} }"
                 case (tryBlock, TransformCases(cases)) =>
                   q"${c.prefix}.rescue(${c.prefix}($tryBlock)) { case ..$cases }"
                 case other =>
@@ -209,21 +209,22 @@ private[monadless] object Transformer {
     }
 
     object TransformCases {
+      
+      def apply(cases: List[Tree]) =
+        cases.map {
+          case cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
+          case cq"$pattern => $body"                         => cq"$pattern => ${c.prefix}($body)"
+          case cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
+          case cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${c.prefix}($body)"
+        }
+      
       def unapply(cases: List[Tree]) =
         cases.exists {
           case cq"$pattern => ${ Transform(body) }" => true
           case cq"$pattern if $cond => ${ Transform(body) }" => true
           case _ => false
         } match {
-          case true =>
-            Some {
-              cases.map {
-                case cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
-                case cq"$pattern => $body"                         => cq"$pattern => ${c.prefix}($body)"
-                case cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
-                case cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${c.prefix}($body)"
-              }
-            }
+          case true => Some(apply(cases))
           case false => None
         }
     }

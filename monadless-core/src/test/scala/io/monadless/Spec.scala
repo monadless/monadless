@@ -26,8 +26,9 @@ trait Spec
     }
 
   def get[T](m: Try[T]): T = m.get
-  def handle[T](m: Try[T])(pf: PartialFunction[Throwable, T]) = m.recover(pf)
+  
   def rescue[T](m: Try[T])(pf: PartialFunction[Throwable, Try[T]]) = m.recoverWith(pf)
+  
   def ensure[T](m: Try[T])(f: => Unit) =
     m.map { r =>
       try f
