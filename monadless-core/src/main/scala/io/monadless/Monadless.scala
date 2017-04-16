@@ -11,7 +11,6 @@ trait Monadless {
 
     def apply[T](v: => T): M[T]
     def collect[T](list: M[T]): M[List[T]]
-    def get[T](m: M[T]): T
     def rescue[T](m: M[T])(pf: PartialFunction[Throwable, M[T]]): M[T]
     def ensure[T](m: M[T])(f: => Unit): M[T]
   

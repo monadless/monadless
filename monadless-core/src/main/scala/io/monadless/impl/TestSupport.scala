@@ -7,6 +7,7 @@ import language.higherKinds
 import scala.reflect.macros.TypecheckException
 
 private[monadless] trait TestSupport[M[_]] {
+  def get[T](m: M[T]): T
   def showTree[T](t: T): Unit = macro TestSupportMacro.showTree
   def showRawTree[T](t: T): Unit = macro TestSupportMacro.showRawTree
   def forceLift[T](t: T): T = macro TestSupportMacro.forceLift
