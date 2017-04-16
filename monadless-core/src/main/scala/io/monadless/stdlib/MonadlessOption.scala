@@ -1,16 +1,10 @@
-package io.monadless
+package io.monadless.stdlib
 
+import io.monadless.Monadless
 import scala.util.Try
 import scala.util.control.NonFatal
 
-import org.scalatest.MustMatchers
-import io.monadless.impl.TestSupport
-
-trait Spec
-  extends org.scalatest.FreeSpec
-  with MustMatchers
-  with Monadless
-  with TestSupport[Try] {
+object MonadlessTry extends Monadless {
 
   type M[T] = Try[T]
 
@@ -24,8 +18,6 @@ trait Spec
           i <- item
         } yield l :+ i
     }
-
-  def get[T](m: Try[T]): T = m.get
 
   def rescue[T](m: Try[T])(pf: PartialFunction[Throwable, Try[T]]) = m.recoverWith(pf)
 

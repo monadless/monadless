@@ -209,7 +209,7 @@ private[monadless] object Transformer {
     }
 
     object TransformCases {
-      
+
       def apply(cases: List[Tree]) =
         cases.map {
           case cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
@@ -217,14 +217,14 @@ private[monadless] object Transformer {
           case cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
           case cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${c.prefix}($body)"
         }
-      
+
       def unapply(cases: List[Tree]) =
         cases.exists {
           case cq"$pattern => ${ Transform(body) }" => true
           case cq"$pattern if $cond => ${ Transform(body) }" => true
           case _ => false
         } match {
-          case true => Some(apply(cases))
+          case true  => Some(apply(cases))
           case false => None
         }
     }
