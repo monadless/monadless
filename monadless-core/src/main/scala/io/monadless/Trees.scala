@@ -2,7 +2,7 @@ package io.monadless
 
 import scala.reflect.macros.blackbox.Context
 
-object Trees {
+private[monadless] object Trees {
 
   object Transform {
     def apply(c: Context)(tree: c.Tree)(pf: PartialFunction[c.Tree, c.Tree]): c.Tree = {

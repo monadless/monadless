@@ -5,7 +5,7 @@ import scala.reflect.macros.blackbox.Context
 
 import org.scalamacros.resetallattrs.ResetAllAttrs
 
-object Transformer {
+private[monadless] object Transformer {
 
   def apply[M[_]](c: Context)(tree: c.Tree)(implicit m: c.WeakTypeTag[M[_]]): c.Tree = {
     import c.universe._
