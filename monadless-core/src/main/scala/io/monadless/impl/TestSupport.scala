@@ -1,11 +1,10 @@
-package io.monadless
+package io.monadless.impl
 
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox.Context
 import org.scalamacros.resetallattrs._
 import language.higherKinds
 import scala.reflect.macros.TypecheckException
-import language.higherKinds
 
 private[monadless] trait TestSupport[M[_]] {
   def showTree[T](t: T): Unit = macro TestSupportMacro.showTree

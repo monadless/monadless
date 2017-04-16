@@ -1,9 +1,8 @@
-package io.monadless
+package io.monadless.impl
 
 import scala.language.higherKinds
 import scala.reflect.macros.blackbox.Context
-
-import org.scalamacros.resetallattrs.ResetAllAttrs
+import org.scalamacros.resetallattrs._
 
 private[monadless] object Transformer {
 

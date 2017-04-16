@@ -1,6 +1,5 @@
 package io.monadless
 
-import scala.reflect.macros.blackbox.Context
 import language.experimental.macros
 import language.higherKinds
 
@@ -17,20 +16,7 @@ trait Monadless[M[_]] {
   
   */
 
-  def lift[T](body: T): M[T] = macro Macro.lift[M, T]
+  def lift[T](body: T): M[T] = macro impl.Macro.lift[M, T]
 
   def unlift[T](m: M[T]): T = ???
-}
-
-private[monadless] class Macro(val c: Context) {
-  import c.universe._
-
-  def lift[M[_], T](body: Expr[T])(implicit m: WeakTypeTag[M[_]]): Tree = {
-    val tree = Transformer[M](c)(body.tree)
-    Trees.traverse(c)(tree) {
-      case tree @ q"$pack.unlift[$t]($v)" =>
-        c.error(tree.pos, "Unsupported unlift position")
-    }
-    tree
-  }
 }

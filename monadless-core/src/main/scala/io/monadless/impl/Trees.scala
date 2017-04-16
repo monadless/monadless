@@ -1,4 +1,4 @@
-package io.monadless
+package io.monadless.impl
 
 import scala.reflect.macros.blackbox.Context
 

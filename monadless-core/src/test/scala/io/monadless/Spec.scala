@@ -4,6 +4,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 import org.scalatest.MustMatchers
+import io.monadless.impl.TestSupport
 
 trait Spec
   extends org.scalatest.FreeSpec
