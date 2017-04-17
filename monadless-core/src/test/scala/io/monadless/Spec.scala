@@ -9,10 +9,8 @@ import io.monadless.impl.TestSupport
 trait Spec
   extends org.scalatest.FreeSpec
   with MustMatchers
-  with Monadless
+  with Monadless[Try]
   with TestSupport[Try] {
-
-  type M[T] = Try[T]
 
   def apply[T](v: => T) = Try(v)
 

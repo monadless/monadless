@@ -4,9 +4,7 @@ import io.monadless.Monadless
 import scala.util.Try
 import scala.util.control.NonFatal
 
-object MonadlessTry extends Monadless {
-
-  type M[T] = Try[T]
+object MonadlessTry extends Monadless[Try] {
 
   def apply[T](v: => T) = Try(v)
 

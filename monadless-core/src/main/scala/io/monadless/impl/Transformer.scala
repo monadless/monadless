@@ -1,11 +1,12 @@
 package io.monadless.impl
 
+import language.higherKinds
 import scala.reflect.macros.blackbox.Context
 import org.scalamacros.resetallattrs._
 
 private[monadless] object Transformer {
 
-  def apply(c: Context)(tree: c.Tree): c.Tree = {
+  def apply[M[_]](c: Context)(tree: c.Tree)(implicit m: c.WeakTypeTag[M[_]]): c.Tree = {
     import c.universe._
 
     object Transform {
@@ -32,9 +33,9 @@ private[monadless] object Transformer {
               case (Transform(ifTrue), Transform(ifFalse)) =>
                 Some(q"if($cond) $ifTrue else $ifFalse")
               case (Transform(ifTrue), ifFalse) =>
-                Some(q"if($cond) $ifTrue else ${c.prefix}($ifFalse)")
+                Some(q"if($cond) $ifTrue else ${Resolve.apply(tree.pos)}($ifFalse)")
               case (ifTrue, Transform(ifFalse)) =>
-                Some(q"if($cond) ${c.prefix}($ifTrue) else $ifFalse")
+                Some(q"if($cond) ${Resolve.apply(tree.pos)}($ifTrue) else $ifFalse")
               case (ifTrue, ifFalse) =>
                 None
             }
@@ -54,27 +55,27 @@ private[monadless] object Transformer {
 
           case q"do $body while($cond)" =>
             val name = TermName(c.freshName("doWhile"))
-            val newBody = Transform(q"{ $body; if($cond) ${c.prefix}.unlift[scala.Unit]($name()) else ${c.prefix}(scala.Unit) }")
+            val newBody = Transform(q"{ $body; if($cond) ${c.prefix}.unlift[scala.Unit]($name()) else ${Resolve.apply(tree.pos)}(scala.Unit) }")
             Some(q"{ def $name(): $unitMonadType = $newBody; $name() }")
 
           case q"$a && $b" =>
             (a, b) match {
               case (Transform(a), Transform(b)) =>
-                Some(q"$a.flatMap { case true => $b; case false => ${c.prefix}(false) }")
+                Some(q"${Resolve.flatMap(tree.pos, a)} { case true => $b; case false => ${Resolve.apply(tree.pos)}(false) }")
               case (Transform(a), b) =>
-                Some(q"$a.map { _ && $b }")
+                Some(q"${Resolve.map(tree.pos, a)} { _ && $b }")
               case (a, Transform(b)) =>
-                Some(q"if($a) $b else ${c.prefix}(false)")
+                Some(q"if($a) $b else ${Resolve.apply(tree.pos)}(false)")
             }
 
           case q"$a || $b" =>
             (a, b) match {
               case (Transform(a), Transform(b)) =>
-                Some(q"$a.flatMap { case true => ${c.prefix}(true); case false => $b }")
+                Some(q"${Resolve.flatMap(tree.pos, a)} { case true => ${Resolve.apply(tree.pos)}(true); case false => $b }")
               case (Transform(a), b) =>
-                Some(q"$a.map { _ || $b }")
+                Some(q"${Resolve.map(tree.pos, a)} { _ || $b }")
               case (a, Transform(b)) =>
-                Some(q"if($a) ${c.prefix}(true) else $b")
+                Some(q"if($a) ${Resolve.apply(tree.pos)}(true) else $b")
             }
 
           // TODO what if the monad creation throws before creating the instance?
@@ -82,20 +83,20 @@ private[monadless] object Transformer {
             val monad =
               (tryBlock, cases) match {
                 case (Transform(tryBlock), TransformCases(cases)) =>
-                  q"${c.prefix}.rescue($tryBlock) { case ..$cases }"
+                  q"${Resolve.rescue(tree.pos, tryBlock)} { case ..$cases }"
                 case (Transform(tryBlock), Nil) =>
                   q"$tryBlock"
                 case (Transform(tryBlock), cases) =>
-                  q"${c.prefix}.rescue($tryBlock) { case ..${TransformCases(cases)} }"
+                  q"${Resolve.rescue(tree.pos, tryBlock)} { case ..${TransformCases(cases)} }"
                 case (tryBlock, TransformCases(cases)) =>
-                  q"${c.prefix}.rescue(${c.prefix}($tryBlock)) { case ..$cases }"
+                  q"${Resolve.rescue(tree.pos, q"${c.prefix}($tryBlock)")} { case ..$cases }"
                 case other =>
-                  q"${c.prefix}(try $tryBlock catch { case ..$cases })"
+                  q"${Resolve.apply(tree.pos)}(try $tryBlock catch { case ..$cases })"
               }
 
             finallyBlock match {
               case EmptyTree    => Some(monad)
-              case finallyBlock => Some(q"${c.prefix}.ensure($monad)(${Transform(finallyBlock)})")
+              case finallyBlock => Some(q"${Resolve.ensure(tree.pos, monad)}(${Transform(finallyBlock)})")
             }
 
           case q"$pack.unlift[$t]($v)" => Some(v)
@@ -112,15 +113,16 @@ private[monadless] object Transformer {
 
             unlifts match {
               case List()             => None
-              case List((tree, name)) => Some(q"$tree.map(${toVal(name)} => $newTree)")
+              case List((tree, name)) => Some(q"${Resolve.map(tree.pos, tree)}(${toVal(name)} => $newTree)")
               case unlifts =>
                 val (trees, names) = unlifts.unzip
                 val binds = names.map(name => pq"$name @ _")
                 val list = freshName("list")
                 val iterator = freshName("iterator")
+                val collect = q"${Resolve.collect(tree.pos)}(scala.List(..$trees))"
                 Some(
                   q"""
-                    ${c.prefix}.collect(scala.List(..$trees)).map { ${toVal(list)} =>
+                    ${Resolve.map(tree.pos, collect)} { ${toVal(list)} =>
                       val $iterator = $list.iterator
                       def read[T](m: ${c.prefix}.M[T]): T = $iterator.next.asInstanceOf[T]
                       ..${unlifts.map { case (tree, name) => q"val $name = read($tree)" }}
@@ -173,8 +175,8 @@ private[monadless] object Transformer {
     object Nest {
       def apply(monad: Tree, name: TermName, body: Tree): Tree =
         body match {
-          case Transform(body) => q"$monad.flatMap(${toVal(name)} => $body)"
-          case body            => q"$monad.map(${toVal(name)} => $body)"
+          case Transform(body) => q"${Resolve.flatMap(monad.pos, monad)}(${toVal(name)} => $body)"
+          case body            => q"${Resolve.map(monad.pos, monad)}(${toVal(name)} => $body)"
         }
     }
 
@@ -212,10 +214,10 @@ private[monadless] object Transformer {
 
       def apply(cases: List[Tree]) =
         cases.map {
-          case cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
-          case cq"$pattern => $body"                         => cq"$pattern => ${c.prefix}($body)"
-          case cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
-          case cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${c.prefix}($body)"
+          case t @ cq"$pattern => ${ Transform(body) }"          => cq"$pattern => $body"
+          case t @ cq"$pattern => $body"                         => cq"$pattern => ${Resolve.apply(t.pos)}($body)"
+          case t @ cq"$pattern if $cond => ${ Transform(body) }" => cq"$pattern if $cond => $body"
+          case t @ cq"$pattern if $cond => $body"                => cq"$pattern if $cond => ${Resolve.apply(t.pos)}($body)"
         }
 
       def unapply(cases: List[Tree]) =
@@ -226,6 +228,112 @@ private[monadless] object Transformer {
         } match {
           case true  => Some(apply(cases))
           case false => None
+        }
+    }
+
+    object Resolve {
+
+      private val monadTypeName = m.tpe.typeSymbol.name.decodedName
+      private val sourceCompatibilityMessage =
+        s"""For instance, it's possible to add implicits or default parameters to the method 
+            |without breaking source compatibility.
+            |Note: the methods defined by the `Monadless` instance have precedence over the ones
+            |defined by the monad instance and its companion object.
+        """.stripMargin
+
+      def apply(pos: Position): Tree =
+        companionMethod(pos, "apply").getOrElse {
+          val msg =
+            s"""Transformation requires the method `apply` to create a monad instance for a value.
+               |${companionMethodErrorMessage(s"def apply[T](v: => T): $monadTypeName[T]")}
+            """.stripMargin
+          c.abort(pos, msg)
+        }
+
+      def collect(pos: Position): Tree =
+        companionMethod(pos, "collect").getOrElse {
+          val msg =
+            s"""Transformation requires the method `collect` to transform List[M[T]] into M[List[T]]. The implementation
+               |is free to collect the results sequentially or in parallel.
+               |${companionMethodErrorMessage(s"def collect[T](list: List[$monadTypeName[T]]): $monadTypeName[List[T]]")}
+            """.stripMargin
+          c.abort(pos, msg)
+        }
+
+      private def companionMethodErrorMessage(signature: String) =
+        s"""Please add the method to `${m.tpe}`'s companion object or to `${c.prefix.tree}`.
+           |It needs to be source compatible with the following signature:
+           |`$signature`
+           |$sourceCompatibilityMessage
+        """.stripMargin
+
+      def map(pos: Position, instance: Tree): Tree =
+        instanceMethod(pos, instance, "map").getOrElse {
+          val msg =
+            s"""Transformation requires the method `map` to transform the result of a monad instance.
+               |${instanceMethodErrorMessage("map[T, U]", s"f: T => U", s"$monadTypeName[U]")}
+            """.stripMargin
+          c.abort(pos, msg)
+        }
+
+      def flatMap(pos: Position, instance: Tree): Tree =
+        instanceMethod(pos, instance, "flatMap").getOrElse {
+          val msg =
+            s"""Transformation requires the method `flatMap` to transform the result of a monad instance.
+               |${instanceMethodErrorMessage("flatMap[T, U]", s"f: T => $monadTypeName[U]", s"$monadTypeName[U]")}
+            """.stripMargin
+          c.abort(pos, msg)
+        }
+
+      def rescue(pos: Position, instance: Tree): Tree =
+        instanceMethod(pos, instance, "rescue").getOrElse {
+          val msg =
+            s"""Transformation requires the method `rescue` to recover from a failure (translate a `catch` clause).
+               |${instanceMethodErrorMessage("collect[T]", s"pf: PartialFunction[Throwable, $monadTypeName[T]]", s"$monadTypeName[T]")}
+               |$errorHandlingMonadNote
+            """.stripMargin
+          c.abort(pos, msg)
+        }
+
+      def ensure(pos: Position, instance: Tree): Tree =
+        instanceMethod(pos, instance, "ensure").getOrElse {
+          val msg =
+            s"""Transformation requires the method `ensure` to execute code regardless of the outcome of the 
+               |execution (translate a `finally` clause).
+               |${instanceMethodErrorMessage("rescue[T]", s"f: => Unit", s"$monadTypeName[T]")}
+               |$errorHandlingMonadNote
+            """.stripMargin
+          c.abort(pos, msg)
+        }
+
+      private def instanceMethodErrorMessage(name: String, parameter: String, result: String) =
+        s"""Please add the method to `${m.tpe}` or to `${c.prefix.tree}`.
+           |It needs to be source compatible with the following signature:
+           |As a `${m.tpe}` method: `def $name($parameter): $result`
+           |As a `${c.prefix.tree}` method: `def $name[T](m: $monadTypeName[T])($parameter): $result`
+           |$sourceCompatibilityMessage
+        """.stripMargin
+
+      private val errorHandlingMonadNote =
+        """Note that this kind of construct (`try`/`catch`/`finally`) can't be used with monads 
+          |that don't represent a computation and/or don't handle exceptions (e.g. `Option`)
+        """.stripMargin
+
+      private def instanceMethod(pos: Position, instance: Tree, name: String) =
+        this.method(c.prefix.tree, c.prefix.tree.tpe, TermName(name)).map(t => q"$t($instance)")
+          .orElse(this.method(instance, m.tpe, TermName(name)))
+
+      private def companionMethod(pos: Position, name: String) =
+        method(c.prefix.tree, c.prefix.tree.tpe, TermName(name))
+          .orElse(method(q"${m.tpe.typeSymbol.companion}", m.tpe.companion, TermName(name)))
+
+      private def method(instance: Tree, tpe: Type, name: TermName) =
+        find(tpe, name).map(_ => q"$instance.$name")
+
+      private def find(tpe: Type, method: TermName) =
+        tpe.member(method) match {
+          case NoSymbol => None
+          case symbol   => Some(symbol)
         }
     }
 
@@ -286,7 +394,7 @@ private[monadless] object Transformer {
 
     c.resetAllAttrs {
       TransformDefs(tree) match {
-        case PureTree(tree) => q"${c.prefix}($tree)"
+        case PureTree(tree) => q"${Resolve.apply(tree.pos)}($tree)"
         case tree           => Transform(tree)
       }
     }

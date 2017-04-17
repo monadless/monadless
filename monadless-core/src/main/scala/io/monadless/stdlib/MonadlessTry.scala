@@ -3,9 +3,7 @@ package io.monadless.stdlib
 import io.monadless.Monadless
 import scala.util.control.NonFatal
 
-object MonadlessOption extends Monadless {
-
-  type M[T] = Option[T]
+object MonadlessOption extends Monadless[Option] {
 
   def apply[T](v: => T) = Option(v)
 
