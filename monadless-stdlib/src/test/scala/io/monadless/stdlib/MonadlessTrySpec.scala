@@ -14,6 +14,8 @@ class MonadlessTrySpec
 
   def get[T](t: Try[T]) = t.get
 
+  def fail[T]: T = throw new Exception
+
   val one = Try(1)
   val two = Try(2)
 
@@ -43,14 +45,14 @@ class MonadlessTrySpec
       runLiftTest(1) {
         try unlift(one)
         catch {
-          case e: Throwable => unlift(two)
+          case e: Exception => unlift(two)
         }
       }
     "failure" in
       runLiftTest(1) {
-        try 1 / 0
+        try fail[Int]
         catch {
-          case e: Throwable => unlift(one)
+          case e: Exception => unlift(one)
         }
       }
   }
@@ -67,10 +69,10 @@ class MonadlessTrySpec
       runLiftTest(1) {
         var i = 0
         try {
-          try unlift(one) / 0
+          try unlift(one) / fail[Int]
           finally i += 1
         } catch {
-          case e: ArithmeticException => 1
+          case e: Exception => 1
         }
         i
       }

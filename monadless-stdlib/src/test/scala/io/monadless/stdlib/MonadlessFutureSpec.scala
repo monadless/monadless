@@ -2,10 +2,10 @@ package io.monadless.stdlib
 
 import org.scalatest.MustMatchers
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import io.monadless.impl.TestSupport
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import java.util.concurrent.atomic.AtomicReference
+import scala.util.Try
+import scala.concurrent.ExecutionContext
 
 class MonadlessFutureSpec
   extends org.scalatest.FreeSpec
@@ -13,7 +13,19 @@ class MonadlessFutureSpec
   with MonadlessFuture
   with TestSupport[Future] {
 
-  def get[T](f: Future[T]) = Await.result(f, Duration.Inf)
+  implicit val ec = new ExecutionContext {
+    def execute(runnable: Runnable): Unit = runnable.run()
+    def reportFailure(cause: Throwable): Unit = {}
+  }
+
+  def get[T](f: Future[T]) = {
+    // can't use Await because of scala.js
+    val r = new AtomicReference[Try[T]]
+    f.onComplete(r.set)
+    r.get.get
+  }
+
+  def fail[T]: T = throw new Exception
 
   val one = Future.successful(1)
   val two = Future.successful(2)
@@ -49,9 +61,9 @@ class MonadlessFutureSpec
       }
     "failure" in
       runLiftTest(1) {
-        try 1 / 0
+        try fail[Int]
         catch {
-          case e: Throwable => unlift(one)
+          case e: Exception => unlift(one)
         }
       }
   }
@@ -68,10 +80,10 @@ class MonadlessFutureSpec
       runLiftTest(1) {
         var i = 0
         try {
-          try unlift(one) / 0
+          try unlift(one) / fail[Int]
           finally i += 1
         } catch {
-          case e: ArithmeticException => 1
+          case e: Exception => 1
         }
         i
       }
