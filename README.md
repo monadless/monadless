@@ -171,4 +171,3 @@ val twoServices: Future[String] = lift {
   s"service A gave us $serviceAString and service B gave us $serviceBString"
 }
 ```
-
