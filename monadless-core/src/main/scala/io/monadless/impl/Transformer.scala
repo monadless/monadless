@@ -102,20 +102,20 @@ private[monadless] object Transformer {
           case q"$pack.unlift[$t]($v)" => Some(v)
 
           case tree =>
-            var unlifts = List.empty[(Tree, TermName)]
+            var unlifts = List.empty[(Tree, TermName, Type)]
             val newTree =
               Trees.Transform(c)(tree) {
-                case q"$pack.unlift[$t]($v)" =>
+                case q"$pack.unlift[${ t: Type }]($v)" =>
                   val name = freshName()
-                  unlifts :+= ((v, name))
+                  unlifts :+= ((v, name, t))
                   q"$name"
               }
 
             unlifts match {
-              case List()             => None
-              case List((tree, name)) => Some(q"${Resolve.map(tree.pos, tree)}(${toVal(name)} => $newTree)")
+              case List()                  => None
+              case List((tree, name, tpe)) => Some(q"${Resolve.map(tree.pos, tree)}(${toVal(name)} => $newTree)")
               case unlifts =>
-                val (trees, names) = unlifts.unzip
+                val (trees, names, types) = unlifts.unzip3
                 val binds = names.map(name => pq"$name @ _")
                 val list = freshName("list")
                 val iterator = freshName("iterator")
@@ -124,8 +124,7 @@ private[monadless] object Transformer {
                   q"""
                     ${Resolve.map(tree.pos, collect)} { ${toVal(list)} =>
                       val $iterator = $list.iterator
-                      def read[T](m: ${c.prefix}.M[T]): T = $iterator.next.asInstanceOf[T]
-                      ..${unlifts.map { case (tree, name) => q"val $name = read($tree)" }}
+                      ..${unlifts.map { case (tree, name, tpe) => q"val $name = $iterator.next().asInstanceOf[$tpe]" }}
                       $newTree
                     }
                   """

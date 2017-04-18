@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 class MonadlessFuture extends Monadless[Future] {
   def apply[T](v: => T)(implicit ec: ExecutionContext): Future[T] = Future(v)
 
-  def join[T1, T2](m1: Future[T1], m2: Future[T2]): Future[(T1, T2)] = m1.zip(m2)
+  def collect[T](list: List[Future[T]])(implicit ec: ExecutionContext): Future[List[T]] = Future.sequence(list)
 
   def get[T](m: Future[T]): T = Await.result(m, 1.seconds)
 

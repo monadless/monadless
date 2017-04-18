@@ -84,6 +84,13 @@ class BlockSpec extends Spec {
     }
   }
 
+  "tuple val pattern" in {
+    lift {
+      val (a, b) = (unlift(lift(1)), unlift(lift(2)))
+      a + b
+    }
+  }
+
   "nested" in {
     val i = lift(1)
     runLiftTest(4) {
