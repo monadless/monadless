@@ -15,7 +15,7 @@ private[monadless] object Transformer {
         unapply(tree).getOrElse(tree)
 
       def unapply(tree: Tree): Option[Tree] =
-        c.untypecheck(tree) match {
+        tree match {
 
           case PureTree(tree)                    => None
 
@@ -338,14 +338,15 @@ private[monadless] object Transformer {
 
     object Validate {
 
-      def apply(tree: Tree) =
+      def apply(tree: Tree): Tree = {
         Trees.traverse(c)(tree) {
 
           case q"$v match { case ..$cases }" =>
             cases.foreach {
               case cq"$pattern if ${ t @ Transform(_) } => $body" =>
                 c.abort(t.pos, s"Unlift can't be used as a case guard.")
-              case other => ()
+              case cq"$pattern if $cond => $body" => Validate(body)
+              case cq"$pattern => $body"          => Validate(body)
             }
 
           case t @ q"return $v" =>
@@ -360,7 +361,7 @@ private[monadless] object Transformer {
           case q"(..$params) => ${ t @ Transform(_) }" =>
             c.abort(t.pos, "Unlift can't be used in function bodies.")
 
-          case tree @ q"$method[..$t](...$values)" if values.size > 0 =>
+          case tree @ q"$method[..$t](...$values)" if values.size > 0 && method.symbol.isMethod =>
             val pit = method.symbol.asMethod.paramLists.flatten.iterator
             val vit = values.flatten.iterator
             while (pit.hasNext && vit.hasNext) {
@@ -372,11 +373,16 @@ private[monadless] object Transformer {
                 case other => ()
               }
             }
+            values.flatten.foreach(Validate(_))
 
           case t @ q"$mods def $method[..$tpe](...$params) = ${ Transform(body) }" =>
             if (t.symbol.overrides.nonEmpty)
               c.abort(t.pos, "Can't unlift overriden method body.")
+            else
+              Validate(body)
         }
+        tree
+      }
     }
 
     def toVal(name: TermName) = q"val $name = $EmptyTree"
@@ -389,10 +395,8 @@ private[monadless] object Transformer {
       v
     }
 
-    Validate(tree)
-
     c.resetAllAttrs {
-      TransformDefs(tree) match {
+      TransformDefs(Validate(c.untypecheck(tree))) match {
         case PureTree(tree) => q"${Resolve.apply(tree.pos)}($tree)"
         case tree           => Transform(tree)
       }

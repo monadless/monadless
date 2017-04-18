@@ -1,5 +1,7 @@
 package io.monadless
 
+import scala.annotation.tailrec
+
 class UnsupportedSpec extends Spec {
 
   "unlifted guard" in pendingUntilFixed {
@@ -100,5 +102,12 @@ class UnsupportedSpec extends Spec {
     }
   }
 
-  //  "unlifted constructor initializer"
+  "for-comprehension" in pendingUntilFixed {
+    runLiftTest({}) {
+      for (_ <- (0 until 10))
+        unlift(lift(1))
+    }
+  }
+
+  //    "unlifted constructor initializer"
 }
