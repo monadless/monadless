@@ -2,7 +2,7 @@ package io.monadless.stdlib
 
 import io.monadless.Monadless
 
-object MonadlessOption extends Monadless[Option] {
+trait MonadlessOption extends Monadless[Option] {
 
   def collect[T](list: List[Option[T]]): Option[List[T]] =
     list.foldLeft(Option(List.empty[T])) {
@@ -13,3 +13,5 @@ object MonadlessOption extends Monadless[Option] {
         } yield l :+ i
     }
 }
+
+object MonadlessOption extends MonadlessOption

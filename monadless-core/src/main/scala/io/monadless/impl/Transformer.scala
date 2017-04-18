@@ -89,7 +89,7 @@ private[monadless] object Transformer {
                 case (Transform(tryBlock), cases) =>
                   q"${Resolve.rescue(tree.pos, tryBlock)} { case ..${TransformCases(cases)} }"
                 case (tryBlock, TransformCases(cases)) =>
-                  q"${Resolve.rescue(tree.pos, q"${c.prefix}($tryBlock)")} { case ..$cases }"
+                  q"${Resolve.rescue(tree.pos, q"${Resolve.apply(tree.pos)}($tryBlock)")} { case ..$cases }"
                 case other =>
                   q"${Resolve.apply(tree.pos)}(try $tryBlock catch { case ..$cases })"
               }
@@ -396,7 +396,7 @@ private[monadless] object Transformer {
     }
 
     c.resetAllAttrs {
-      TransformDefs(Validate(c.untypecheck(tree))) match {
+      TransformDefs(Validate(tree)) match {
         case PureTree(tree) => q"${Resolve.apply(tree.pos)}($tree)"
         case tree           => Transform(tree)
       }

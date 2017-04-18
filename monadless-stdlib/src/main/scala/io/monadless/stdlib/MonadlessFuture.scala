@@ -4,10 +4,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import io.monadless.Monadless
 
-object MonadlessFuture extends Monadless[Future] {
-
-  def apply[T](v: => T)(implicit ec: ExecutionContext): Future[T] =
-    Future.apply(v)
+trait MonadlessFuture extends Monadless[Future] {
 
   def collect[T](list: List[Future[T]])(implicit ec: ExecutionContext): Future[List[T]] =
     Future.sequence(list)
@@ -20,3 +17,5 @@ object MonadlessFuture extends Monadless[Future] {
     m
   }
 }
+
+object MonadlessFuture extends MonadlessFuture

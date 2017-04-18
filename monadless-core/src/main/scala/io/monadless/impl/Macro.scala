@@ -2,6 +2,7 @@ package io.monadless.impl
 
 import language.higherKinds
 import scala.reflect.macros.blackbox.Context
+import scala.reflect.macros.TypecheckException
 
 private[monadless] class Macro(val c: Context) {
   import c.universe._
@@ -12,6 +13,14 @@ private[monadless] class Macro(val c: Context) {
       case tree @ q"$pack.unlift[$t]($v)" =>
         c.error(tree.pos, "Unsupported unlift position")
     }
-    tree
+    try c.typecheck(tree)
+    catch {
+      case e: TypecheckException =>
+        val msg =
+          s"""Can't typecheck the monadless transformation. Please file a bug report with this error and your `Monadless` instance. 
+             |Failure: ${e.msg}
+             |Tree: $tree""".stripMargin
+        c.abort(c.enclosingPosition, msg)
+    }
   }
 }

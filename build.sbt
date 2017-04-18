@@ -18,7 +18,9 @@ lazy val `monadless` =
   (project in file("."))
     .settings(tutSettings ++ commonSettings)
     .aggregate(
-      `monadless-core-jvm`, `monadless-core-js`, `monadless-examples`
+      `monadless-core-jvm`, `monadless-core-js`, 
+      `monadless-stdlib-jvm`, `monadless-stdlib-js`, 
+      `monadless-examples`
 )
 
 lazy val `monadless-core` = 
@@ -38,6 +40,24 @@ lazy val `monadless-core` =
 
 lazy val `monadless-core-jvm` = `monadless-core`.jvm
 lazy val `monadless-core-js` = `monadless-core`.js
+
+
+lazy val `monadless-stdlib` = 
+  crossProject.crossType(superPure)
+    .dependsOn(`monadless-core`)
+    .settings(commonSettings)
+    .settings(
+      name := "monadless-stdlib",
+      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+      scoverage.ScoverageKeys.coverageMinimum := 96,
+      scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+    .jsSettings(
+      coverageExcludedPackages := ".*"
+    )
+
+lazy val `monadless-stdlib-jvm` = `monadless-stdlib`.jvm
+lazy val `monadless-stdlib-js` = `monadless-stdlib`.js
+
 
 lazy val `monadless-examples` = project
   .dependsOn(`monadless-core-jvm`)
@@ -114,8 +134,6 @@ lazy val commonSettings = Seq(
     .setPreference(IndentLocalDefs, false)
     .setPreference(SpacesWithinPatternBinders, true)
     .setPreference(SpacesAroundMultiImports, true),
-  scoverage.ScoverageKeys.coverageMinimum := 96,
-  scoverage.ScoverageKeys.coverageFailOnMinimum := false,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle := true,
   publishTo := {
