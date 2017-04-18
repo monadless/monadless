@@ -20,3 +20,7 @@ trait Monadless[Monad[_]] {
 
   def unlift[T](m: M[T]): T = ???
 }
+
+object Monadless {
+  def apply[M[_]] = new Monadless[M] {}
+}

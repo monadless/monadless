@@ -25,7 +25,7 @@ class ResolveSpec
   class WithoutMonadMethods[T](val calls: List[String])
 
   "instance method" - {
-    val monadless = new Monadless[WithMonadMethods] {}
+    val monadless = Monadless[WithMonadMethods]
     import monadless._
 
     "apply" in {
