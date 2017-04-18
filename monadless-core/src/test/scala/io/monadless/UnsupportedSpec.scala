@@ -1,7 +1,5 @@
 package io.monadless
 
-import scala.annotation.tailrec
-
 class UnsupportedSpec extends Spec {
 
   "unlifted guard" in pendingUntilFixed {
