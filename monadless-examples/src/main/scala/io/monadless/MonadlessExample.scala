@@ -2,15 +2,19 @@ package io.monadless
 
 import java.net.{ ConnectException, UnknownHostException }
 import play.api.libs.ws.{ WSRequest, WSResponse }
-import play.api.libs.ws.ning.NingWSClient
+import play.api.libs.ws.ahc._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future }
 import scala.async.Async.{ async, await }
 import scala.collection.mutable
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 
 trait ExampleHelper {
-  val wsClient = NingWSClient()
+  implicit val system = ActorSystem("QuickStart")
+  implicit val materializer = ActorMaterializer()
+  val wsClient = AhcWSClient()
 
   val goodRequest: WSRequest = wsClient.url("http://jsonplaceholder.typicode.com/comments/1")
 
