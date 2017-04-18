@@ -19,14 +19,13 @@ trait MonadlessTry extends Monadless[Try] {
 
   def rescue[T](m: Try[T])(pf: PartialFunction[Throwable, Try[T]]) = m.recoverWith(pf)
 
-  def ensure[T](m: Try[T])(f: => Unit) =
-    m.map { r =>
-      try f
-      catch {
-        case NonFatal(e) => ()
-      }
-      r
+  def ensure[T](m: Try[T])(f: => Unit) = {
+    try f
+    catch {
+      case NonFatal(e) => ()
     }
+    m
+  }
 }
 
 object MonadlessTry extends MonadlessTry
