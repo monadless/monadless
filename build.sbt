@@ -127,6 +127,7 @@ lazy val commonSettings = Seq(
   },
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   releaseProcess := Seq[ReleaseStep](
     checkSnapshotDependencies,
     inquireVersions,
@@ -137,13 +138,13 @@ lazy val commonSettings = Seq(
     commitReleaseVersion,
     updateWebsiteTag,
     tagRelease,
-    ReleaseStep(action = Command.process("+publishSigned", _)),
+    publishArtifacts,
     setNextVersion,
     updateReadmeVersion(_._2),
     commitNextVersion,
     ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
     pushChanges
-  ),
+),
   pomExtra := (
     <url>http://github.com/monadless/monadless</url>
     <licenses>
