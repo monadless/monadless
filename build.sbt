@@ -75,7 +75,7 @@ def updateWebsiteTag =
   ReleaseStep(action = st => {
 
     val vcs = Project.extract(st).get(releaseVcs).get
-    vcs.tag("website", "update website", force = true).!
+    vcs.tag("website", "update website", false).!
 
     st
   })
