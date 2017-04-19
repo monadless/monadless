@@ -23,7 +23,13 @@ lazy val `monadless` =
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`, 
       `monadless-examples`
-)
+    )
+    .dependsOn(
+      `monadless-core-jvm`, `monadless-core-js`, 
+      `monadless-stdlib-jvm`, `monadless-stdlib-js`,
+      `monadless-cats-jvm`, `monadless-cats-js`, 
+      `monadless-monix-jvm`, `monadless-monix-js`
+    )
 
 lazy val `monadless-core` = 
   crossProject.crossType(superPure)
