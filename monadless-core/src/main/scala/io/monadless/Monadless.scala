@@ -18,7 +18,7 @@ trait Monadless[Monad[_]] {
 
   def lift[T](body: T): Monad[T] = macro impl.Macro.lift[Monad, T]
 
-  def unlift[T](m: M[T]): T = ???
+  def unlift[T](m: M[T]): T = throw new Exception("Unlift must be used within a `lift` body.")
 }
 
 object Monadless {
