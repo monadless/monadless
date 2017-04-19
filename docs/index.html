@@ -38,7 +38,6 @@
   <meta name="msapplication-TileColor" content="#ffffff">
   <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
-
   
   <!-- Google analytics -->
   <script>
@@ -84,7 +83,7 @@
     Flatdoc.run({
       fetcher: function(callback) {
         fetch(function(err, markdown) {
-          callback(err, markdown)
+          callback(err, markdown.split("![monadless](https://raw.githubusercontent.com/monadless/monadless/master/monadless.png)")[1])
         });
       }
     });
