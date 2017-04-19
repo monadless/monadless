@@ -19,7 +19,9 @@ lazy val `monadless` =
     .settings(tutSettings ++ commonSettings)
     .aggregate(
       `monadless-core-jvm`, `monadless-core-js`, 
-      `monadless-stdlib-jvm`, `monadless-stdlib-js`, 
+      `monadless-stdlib-jvm`, `monadless-stdlib-js`,
+      `monadless-cats-jvm`, `monadless-cats-js`, 
+      `monadless-monix-jvm`, `monadless-monix-js`, 
       `monadless-examples`
 )
 
@@ -58,6 +60,45 @@ lazy val `monadless-stdlib` =
 lazy val `monadless-stdlib-jvm` = `monadless-stdlib`.jvm
 lazy val `monadless-stdlib-js` = `monadless-stdlib`.js
 
+
+lazy val `monadless-cats` = 
+  crossProject.crossType(superPure)
+    .dependsOn(`monadless-core`)
+    .settings(commonSettings)
+    .settings(
+      name := "monadless-cats",
+      libraryDependencies ++= Seq(
+        "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+        "org.typelevel" %%% "cats" % "0.9.0"
+      ),
+      scoverage.ScoverageKeys.coverageMinimum := 96,
+      scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+    .jsSettings(
+      coverageExcludedPackages := ".*"
+    )
+
+lazy val `monadless-cats-jvm` = `monadless-cats`.jvm
+lazy val `monadless-cats-js` = `monadless-cats`.js
+
+
+lazy val `monadless-monix` = 
+  crossProject.crossType(superPure)
+    .dependsOn(`monadless-core`)
+    .settings(commonSettings)
+    .settings(
+      name := "monadless-monix",
+      libraryDependencies ++= Seq(
+        "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+        "io.monix" %%% "monix" % "2.2.4"
+      ),
+      scoverage.ScoverageKeys.coverageMinimum := 96,
+      scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+    .jsSettings(
+      coverageExcludedPackages := ".*"
+    )
+
+lazy val `monadless-monix-jvm` = `monadless-monix`.jvm
+lazy val `monadless-monix-js` = `monadless-monix`.js
 
 lazy val `monadless-examples` = project
   .dependsOn(`monadless-core-jvm`)
