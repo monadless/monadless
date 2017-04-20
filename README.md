@@ -1,30 +1,12 @@
 ![monadless](https://raw.githubusercontent.com/monadless/monadless/master/monadless.png)
-
-Monadless is syntactic sugar for monad composition. Or, "async/await"
-(see SIP-22) generalized. Or -- a way to write monad-heavy functional code
-in a way that looks procedural.
+------------------------------
+Syntactic sugar for monad composition (or, "async/await" generalized)
 
 [![Build Status](https://travis-ci.org/monadless/monadless.svg?branch=master)](https://travis-ci.org/monadless/monadless)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/ea4068928617433f8275534af3351152)](https://www.codacy.com/app/fwbrasil/monadless)
 [![Join the chat at https://gitter.im/monadless/monadless](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/monadless/onadless?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)-[![Dependency Status](https://www.versioneye.com/user/projects/58f1b1915c12c800161e64d1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/58f1b1915c12c800161e64d1)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.monadless/monadless_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.monadless/monadless_2.11)
 [![Javadocs](https://www.javadoc.io/badge/io.monadless/monadless_2.11.svg)](https://www.javadoc.io/doc/io.monadless/monadless-core_2.11)
-
-Code of Conduct
----------------
-
-Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms. See [CODE_OF_CONDUCT.md](https://github.com/monadless/monadless/blob/master/CODE_OF_CONDUCT.md) for details.
-
-License
--------
-
-See the [LICENSE](https://github.com/monadless/monadless/blob/master/LICENSE.txt) file for details.
-
-Maintainers
-===========
-
-- @fwbrasil
-- @sameerparekh
 
 ## Problem
 
@@ -40,7 +22,6 @@ callServiceA().flatMap { a =>
 }
 ```
 
-
 would be much easier to follow using synchronous operations, without a monad:
 
 ```scala
@@ -50,8 +31,7 @@ would be much easier to follow using synchronous operations, without a monad:
   (a, c)
 ```
 
-This issue affects the usability of any monadic interface (Future, Option, Stitch, Hydrator (servo), etc.).
-As an alternative, Scala provides for-comprehensions to reduce noise:
+This issue affects the usability of any monadic interface (Future, Option, Try, etc.). As an alternative, Scala provides for-comprehensions to reduce the noise:
 
 ```scala
   for {
@@ -63,22 +43,14 @@ As an alternative, Scala provides for-comprehensions to reduce noise:
   }
 ```
 
-It’s a great tool to express sequential compositions and makes it easy to access the results of 
-each composition step in the following steps. It also provides other features like local values, 
-filtering, and identifier shadowing.
+They are useful to express sequential compositions and make it easy to access the results of each composition step from the following ones, but it doesn't provide syntax sugar for scala constructs other than assignment.
 
 
 ## Solution
 
-Most mainstream languages have support for asynchronous programming using the async/await 
-idiom or are implementing it (e.g. Scala, F#, C#/VB, Javascript, Python, Swift). Although useful, 
-async/await is usually tied to a particular monad that represents asynchronous computations 
-(Task, Future, etc.).
+Most mainstream languages have support for asynchronous programming using the async/await idiom or are implementing it (e.g. F#, C#/VB, Javascript, Python, Swift). Although useful, async/await is usually tied to a particular monad that represents asynchronous computations (Task, Future, etc.).
 
-This design proposes a solution similar to async/await but generalized to any monad type through
-a macro transformation. This generalization is an important factor considering that some codebases 
-use monads in addition to Future for asynchronous computation. It’s likely that other monads
-defined by the servo library would also benefit from this solution.
+This library implements a solution similar to async/await but generalized to any monad type through a macro transformation. This generalization is an important factor considering that some codebases use other monads like `Task` in addition to `Future` for asynchronous computation.
 
 Given a monad `M`, the generalization uses the concept of lifting regular values to a monad
 `T => M[T]` and unlifting values from a monad instance `M[T] => T`. Method signatures:
@@ -170,3 +142,19 @@ val twoServices: Future[String] = lift {
   s"service A gave us $serviceAString and service B gave us $serviceBString"
 }
 ```
+
+Code of Conduct
+---------------
+
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms. See [CODE_OF_CONDUCT.md](https://github.com/monadless/monadless/blob/master/CODE_OF_CONDUCT.md) for details.
+
+License
+-------
+
+See the [LICENSE](https://github.com/monadless/monadless/blob/master/LICENSE.txt) file for details.
+
+Maintainers
+===========
+
+- @fwbrasil
+- @sameerparekh
