@@ -10,6 +10,7 @@ import scala.async.Async.{ async, await }
 import scala.collection.mutable
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import io.monadless.stdlib.MonadlessFuture._
 
 trait ExampleHelper {
   implicit val system = ActorSystem("QuickStart")
@@ -28,8 +29,6 @@ trait ExampleHelper {
     } else {
       s"OK, received ${wsResponse.body}"
     }
-
-  val monadlessFuture = new MonadlessFuture
 }
 
 object SimpleExample extends App with ExampleHelper {
@@ -48,19 +47,16 @@ object SimpleExample extends App with ExampleHelper {
   println("responseStringAsyncAwait: " + Await.result(responseStringAsyncAwait, Duration.Inf))
 
   // Here's using Monadless
-  import monadlessFuture._
 
   val responseStringMonadless: Future[String] = lift {
     responseToString(unlift(goodRequest.get)) + responseToString(unlift(goodRequest.get))
   }
   println("responseStringMonadless: " + Await.result(responseStringMonadless, Duration.Inf))
 
-  wsClient.close()
+  system.terminate()
 }
 
 object ExceptionalExample extends App with ExampleHelper {
-
-  import monadlessFuture._
 
   // Monadless lets you deal with exceptional results
   // Async-await doesn't support this!
@@ -102,8 +98,6 @@ object ExceptionalExample extends App with ExampleHelper {
 }
 
 object ControlExample extends App with ExampleHelper {
-
-  import monadlessFuture._
 
   // We can do if clauses
   val ifClauses: Future[String] = lift {

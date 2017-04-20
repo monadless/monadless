@@ -118,7 +118,7 @@ lazy val `monadless-algebird` = project
   )
 
 lazy val `monadless-examples` = project
-  .dependsOn(`monadless-core-jvm`)
+  .dependsOn(`monadless-stdlib-jvm`)
   .settings(commonSettings)
   .settings(
     libraryDependencies += "com.typesafe.play" %% "play-ahc-ws" % "2.6.0-M4",
