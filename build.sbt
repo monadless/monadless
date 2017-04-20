@@ -22,13 +22,14 @@ lazy val `monadless` =
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`, 
-      `monadless-examples`
+      `monadless-algebird`, `monadless-examples`
     )
     .dependsOn(
       `monadless-core-jvm`, `monadless-core-js`, 
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
-      `monadless-monix-jvm`, `monadless-monix-js`
+      `monadless-monix-jvm`, `monadless-monix-js`,
+      `monadless-algebird`
     )
 
 lazy val `monadless-core` = 
@@ -105,6 +106,16 @@ lazy val `monadless-monix` =
 
 lazy val `monadless-monix-jvm` = `monadless-monix`.jvm
 lazy val `monadless-monix-js` = `monadless-monix`.js
+
+lazy val `monadless-algebird` = project
+  .dependsOn(`monadless-core-jvm`)
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.twitter" %% "algebird-core" % "0.13.0",
+      "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
+    )
+  )
 
 lazy val `monadless-examples` = project
   .dependsOn(`monadless-core-jvm`)
