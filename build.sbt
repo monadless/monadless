@@ -16,7 +16,7 @@ lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
 
 lazy val `monadless` =
   (project in file("."))
-    .settings(tutSettings ++ commonSettings)
+    .settings(commonSettings)
     .aggregate(
       `monadless-core-jvm`, `monadless-core-js`, 
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
