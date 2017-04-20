@@ -43,7 +43,7 @@ This issue affects the usability of any monadic interface (Future, Option, Try, 
   }
 ```
 
-They are useful to express sequential compositions and make it easy to access the results of each for-comprehension step from the following ones, but it doesn't provide syntax sugar for Scala constructs other than assignment (`<-`, `=`) and mapping (`yield`).
+They are useful to express sequential compositions and make it easy to access the results of each for-comprehension step from the following ones, but they don't provide syntax sugar for Scala constructs other than assignment (`<-`, `=`) and mapping (`yield`).
 
 ## Solution
 
@@ -229,7 +229,7 @@ lift {
 }
 ```
 
-`trait`s, `class`es, and `objects`:
+`trait`s, `class`es, and `object`s:
 ```scala
 lift {
   trait A {
