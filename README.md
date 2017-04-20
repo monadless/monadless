@@ -101,19 +101,6 @@ Usage:
 import io.monadless.monix.MonadlessTask._
 ```
 
-### `monadless-monix`
-
-SBT configuration:
-```
-libraryDependencies += "io.monadless" %% "monadless-monix" % "0.0.11"
-```
-
-Usage:
-```scala
-// for `monix.eval.Task`
-import io.monadless.monix.MonadlessTask._
-```
-
 ### `monadless-cats`
 
 SBT configuration:
@@ -378,7 +365,7 @@ License
 See the [LICENSE](https://github.com/monadless/monadless/blob/master/LICENSE.txt) file for details.
 
 Maintainers
-===========
+-----------
 
 - @fwbrasil
 - @sameerparekh
