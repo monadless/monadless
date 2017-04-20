@@ -143,6 +143,11 @@ import monadless._
 
 ### Twitter monads
 
+SBT configuration:
+```
+libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
+```
+
 The default method resolution uses the naming conventions adopted by Twitter, so it's possible to use the default `Monadless` for them:
 
 ```scala
@@ -154,6 +159,11 @@ import tryMonadless
 ```
 
 ### Other monads
+
+SBT configuration:
+```
+libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
+```
 
 See ["How does it work?"](#how-does-it-work) for information on how to define a `Monadless` instance for other monads.
 
