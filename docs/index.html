@@ -83,7 +83,7 @@
     Flatdoc.run({
       fetcher: function(callback) {
         fetch(function(err, markdown) {
-          callback(err, markdown.split("![monadless](https://raw.githubusercontent.com/monadless/monadless/master/monadless.png)")[1])
+          callback(err, markdown.split("(https://raw.githubusercontent.com/monadless/monadless/master/monadless.png)")[1])
         });
       }
     });
