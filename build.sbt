@@ -193,6 +193,7 @@ lazy val commonSettings = Seq(
     .setPreference(SpacesWithinPatternBinders, true)
     .setPreference(SpacesAroundMultiImports, true),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  releaseIgnoreUntrackedFiles := true,
   publishMavenStyle := true,
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
