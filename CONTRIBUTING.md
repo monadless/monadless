@@ -20,6 +20,6 @@ Releases and snapshots
 All artifacts are published to maven central by the travis ci build. The [build script](https://github.com/monadless/monadless/blob/master/build/build.sh) is configured to:
 
 - Publish a new snapshot version on each master build with the version specified by [version.sbt](https://github.com/monadless/monadless/blob/master/version.sbt).
-- Make a release if `version.sbt` has a non-snaphot version. Note: anyone can submit a pull request to trigger a new release by updating [version.sbt](https://github.com/monadless/monadless/blob/master/version.sbt).
+- Make a release if `version.sbt` has a non-snaphot version. Note: anyone can submit a pull request to trigger a new release by updating [version.sbt](https://github.com/monadless/monadless/blob/master/version.sbt). The release is automated and doesn't require manual intervention to push the artifacts to maven central.
 - Release a snapshot on each branch build with the version `THE_BRANCH_NAME-SNAPSHOT`.
-- Don't release or publish artifacts if it's a pull request build.
+- Not release or publish artifacts if it's a pull request build.
