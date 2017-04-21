@@ -71,8 +71,12 @@ The `lift` and `unlift` methods are provided by an instance of `io.monadless.Mon
 ### `monadless-stdlib`
 
 SBT configuration:
-```
+```scala
+// scala
 libraryDependencies += "io.monadless" %% "monadless-stdlib" % "0.0.12"
+
+// scala.js
+libraryDependencies += "io.monadless" %%% "monadless-stdlib" % "0.0.12"
 ```
 
 Imports:
@@ -91,8 +95,12 @@ import io.monadless.stdlib.MonadlessTry._
 ### `monadless-monix`
 
 SBT configuration:
-```
+```scala
+// scala
 libraryDependencies += "io.monadless" %% "monadless-monix" % "0.0.12"
+
+// scala.js
+libraryDependencies += "io.monadless" %%% "monadless-monix" % "0.0.12"
 ```
 
 Usage:
@@ -105,7 +113,11 @@ import io.monadless.monix.MonadlessTask._
 
 SBT configuration:
 ```
+// scala
 libraryDependencies += "io.monadless" %% "monadless-cats" % "0.0.12"
+
+// scala.js
+libraryDependencies += "io.monadless" %%% "monadless-cats" % "0.0.12"
 ```
 
 Usage:
@@ -162,6 +174,10 @@ import tryMonadless
 
 SBT configuration:
 ```
+// scala
+libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
+
+// scala.js
 libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
 ```
 
