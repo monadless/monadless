@@ -260,4 +260,33 @@ class ResolveSpec
       """ mustNot compile
     }
   }
+
+  "default monadless" - {
+    "no parenthesis" in {
+      val m = Monadless[Option]
+      import m._
+
+      val option =
+        lift {
+          val a = unlift(Option(1))
+          val b = unlift(Option(2))
+          a + b
+        }
+
+      option mustEqual Some(3)
+    }
+    "with parenthesis" in {
+      val m = Monadless[Option]()
+      import m._
+
+      val option =
+        lift {
+          val a = unlift(Option(1))
+          val b = unlift(Option(2))
+          a + b
+        }
+
+      option mustEqual Some(3)
+    }
+  }
 }
