@@ -73,10 +73,10 @@ The `lift` and `unlift` methods are provided by an instance of `io.monadless.Mon
 SBT configuration:
 ```scala
 // scala
-libraryDependencies += "io.monadless" %% "monadless-stdlib" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-stdlib" % "0.0.13"
 
 // scala.js
-libraryDependencies += "io.monadless" %%% "monadless-stdlib" % "0.0.12"
+libraryDependencies += "io.monadless" %%% "monadless-stdlib" % "0.0.13"
 ```
 
 Imports:
@@ -97,10 +97,10 @@ import io.monadless.stdlib.MonadlessTry._
 SBT configuration:
 ```scala
 // scala
-libraryDependencies += "io.monadless" %% "monadless-monix" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-monix" % "0.0.13"
 
 // scala.js
-libraryDependencies += "io.monadless" %%% "monadless-monix" % "0.0.12"
+libraryDependencies += "io.monadless" %%% "monadless-monix" % "0.0.13"
 ```
 
 Usage:
@@ -114,10 +114,10 @@ import io.monadless.monix.MonadlessTask._
 SBT configuration:
 ```
 // scala
-libraryDependencies += "io.monadless" %% "monadless-cats" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-cats" % "0.0.13"
 
 // scala.js
-libraryDependencies += "io.monadless" %%% "monadless-cats" % "0.0.12"
+libraryDependencies += "io.monadless" %%% "monadless-cats" % "0.0.13"
 ```
 
 Usage:
@@ -137,7 +137,7 @@ import myMonadMonadless._
 
 SBT configuration:
 ```
-libraryDependencies += "io.monadless" %% "monadless-algebird" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-algebird" % "0.0.13"
 ```
 
 Usage:
@@ -157,7 +157,7 @@ import monadless._
 
 SBT configuration:
 ```
-libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.13"
 ```
 
 The default method resolution uses the naming conventions adopted by Twitter, so it's possible to use the default `Monadless` for them:
@@ -175,10 +175,10 @@ import tryMonadless
 SBT configuration:
 ```
 // scala
-libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.13"
 
 // scala.js
-libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.12"
+libraryDependencies += "io.monadless" %% "monadless-core" % "0.0.13"
 ```
 
 See ["How does it work?"](#how-does-it-work) for information on how to define a `Monadless` instance for other monads.
