@@ -132,7 +132,7 @@ def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
     import scala.io.Source
     import java.io.PrintWriter
 
-    val pattern = """"io.monadless" %% "monadless" % "(.*)"""".r
+    val pattern = """"io.monadless" %% "monadless-.*" % "(.*)"""".r
 
     val fileName = "README.md"
     val content = Source.fromFile(fileName).getLines.mkString("\n")
