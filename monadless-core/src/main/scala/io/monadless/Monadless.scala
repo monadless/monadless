@@ -22,5 +22,5 @@ trait Monadless[Monad[_]] {
 }
 
 object Monadless {
-  def apply[M[_]]: Monadless[M] = new Monadless[M] {}
+  def apply[M[_]](): Monadless[M] = new Monadless[M] {}
 }
