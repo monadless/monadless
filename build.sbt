@@ -22,14 +22,15 @@ lazy val `monadless` =
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`, 
-      `monadless-algebird`, `monadless-examples`
+      `monadless-algebird`, `monadless-doobie`,
+      `monadless-examples`
     )
     .dependsOn(
       `monadless-core-jvm`, `monadless-core-js`, 
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`,
-      `monadless-algebird`
+      `monadless-algebird`, `monadless-doobie`
     )
 
 lazy val `monadless-core` = 
@@ -116,6 +117,18 @@ lazy val `monadless-algebird` = project
       "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
     )
   )
+
+lazy val `monadless-doobie` = project
+  .dependsOn(`monadless-core-jvm`)
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.tpolecat" %% "doobie-core" % "0.5.3",
+      "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+      "com.h2database" % "h2" % "1.4.197" % "test"
+    )
+  )
+
 
 lazy val `monadless-examples` = project
   .dependsOn(`monadless-stdlib-jvm`)

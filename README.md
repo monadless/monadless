@@ -153,6 +153,19 @@ val myMonadMonadless = io.monadless.algebird.MonadlessMonad[MyMonad]()
 import monadless._
 ```
 
+### `monadless-doobie`
+
+SBT configuration:
+```
+libraryDependencies += "io.monadless" %% "monadless-doobie" % "0.0.13"
+```
+
+Usage:
+```scala
+// for `doobie.free.connection.ConnectionIO`
+import io.monadless.doobie.MonadlessConnectionIO._
+```
+
 ### Twitter monads
 
 SBT configuration:
