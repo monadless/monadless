@@ -13,7 +13,7 @@ trait MonadlessApplicative[M[_]] extends Monadless[M] {
     tc.pure(v)
 
   def collect[T](list: List[M[T]])(implicit t: Traverse[List]): M[List[T]] =
-    tc.sequence(list)
+    t.sequence(list)(tc)
 
   def map[T, U](m: M[T])(f: T => U): M[U] =
     tc.map(m)(f)
