@@ -76,7 +76,7 @@ lazy val `monadless-cats` =
       name := "monadless-cats",
       libraryDependencies ++= Seq(
         "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
-        "org.typelevel" %%% "cats" % "0.9.0"
+        "org.typelevel" %%% "cats-core" % "1.5.0"
       ),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
