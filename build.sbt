@@ -142,7 +142,7 @@ lazy val `monadless-examples` = project
   .settings(commonSettings)
   .settings(
     libraryDependencies += "com.typesafe.play" %% "play-ahc-ws" % "2.6.0-M4",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
+    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.7")
 
 def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
   ReleaseStep(action = st => {
