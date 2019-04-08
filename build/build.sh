@@ -23,19 +23,13 @@ then
 		sbt 'release cross with-defaults'
 	elif [[ $TRAVIS_BRANCH == "master" ]]
 	then
-		sbt ++2.11.8 clean coverage test coverageReport coverageAggregate checkUnformattedFiles
-		sbt ++2.11.8 coverageOff publish
-
 		sbt ++2.12.1 clean coverage test coverageReport coverageAggregate checkUnformattedFiles
 		sbt ++2.12.1 coverageOff publish
 	else
-		sbt ++2.11.8 clean coverage test coverageReport coverageAggregate checkUnformattedFiles
 		sbt ++2.12.1 clean coverage test coverageReport coverageAggregate checkUnformattedFiles
 		echo "version in ThisBuild := \"$TRAVIS_BRANCH-SNAPSHOT\"" > version.sbt
-		sbt ++2.11.8 coverageOff publish
 		sbt ++2.12.1 coverageOff publish
 	fi
 else
-	sbt ++2.11.8 clean coverage test coverageReport coverageAggregate checkUnformattedFiles
 	sbt ++2.12.1 clean coverage test coverageReport coverageAggregate checkUnformattedFiles
 fi

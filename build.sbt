@@ -21,18 +21,37 @@ lazy val `monadless` =
     .settings(commonSettings)
     .aggregate(
       `monadless-core-jvm`, `monadless-core-js`, 
+      `monadless-lst-jvm`, `monadless-lst-js`,
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`, 
       `monadless-algebird`, `monadless-examples`
     )
     .dependsOn(
-      `monadless-core-jvm`, `monadless-core-js`, 
+      `monadless-core-jvm`, `monadless-core-js`,
+      `monadless-lst-jvm`, `monadless-lst-js`,
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`,
       `monadless-algebird`
     )
+
+lazy val `monadless-lst` = 
+  crossProject.crossType(superPure)
+    .settings(commonSettings)
+    .settings(
+      name := "monadless-lst",
+      libraryDependencies ++= Seq(
+        "org.typelevel" %% "cats-laws" % "1.6.0" % "test", 
+        "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
+      scoverage.ScoverageKeys.coverageMinimum := 96,
+      scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+    .jsSettings(
+      coverageExcludedPackages := ".*"
+    )
+
+lazy val `monadless-lst-jvm` = `monadless-lst`.jvm
+lazy val `monadless-lst-js` = `monadless-lst`.js
 
 lazy val `monadless-core` = 
   crossProject.crossType(superPure)
@@ -51,7 +70,6 @@ lazy val `monadless-core` =
 
 lazy val `monadless-core-jvm` = `monadless-core`.jvm
 lazy val `monadless-core-js` = `monadless-core`.js
-
 
 lazy val `monadless-stdlib` = 
   crossProject.crossType(superPure)
