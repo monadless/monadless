@@ -116,7 +116,7 @@ lazy val `monadless-monix` =
       name := "monadless-monix",
       libraryDependencies ++= Seq(
         "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
-        "io.monix" %%% "monix" % "2.2.4"
+        "io.monix" %%% "monix" % "2.3.3"
       ),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
