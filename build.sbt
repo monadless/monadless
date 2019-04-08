@@ -132,7 +132,7 @@ lazy val `monadless-algebird` = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.twitter" %% "algebird-core" % "0.13.0",
+      "com.twitter" %% "algebird-core" % "0.13.5",
       "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
     )
   )
