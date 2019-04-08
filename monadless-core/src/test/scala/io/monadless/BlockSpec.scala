@@ -5,8 +5,9 @@ class BlockSpec extends Spec {
   "assigned unlift" - {
     "only" in {
       val i = lift(1)
-      runLiftTest(()) {
+      runLiftTest(1) {
         val v = unlift(i)
+        v
       }
     }
     "followed by pure expression" in {
@@ -67,7 +68,6 @@ class BlockSpec extends Spec {
       }
     }
     "followed by pure expression" in {
-      val i = lift(1)
       def a = 1
       runLiftTest(2) {
         a

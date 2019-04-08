@@ -72,16 +72,22 @@ class MonadlessFutureSpec
     "success" in
       runLiftTest(1) {
         var i = 0
+        def c() = i += 1
         try unlift(one)
-        finally i += 1
+        finally {
+          c()
+        }
         i
       }
     "failure" in
       runLiftTest(1) {
         var i = 0
+        def c() = i += 1
         try {
           try unlift(one) / fail[Int]
-          finally i += 1
+          finally {
+            c()
+          }
         } catch {
           case e: Exception => 1
         }

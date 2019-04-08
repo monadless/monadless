@@ -73,8 +73,11 @@ class MonadlessApplicativeSpec
       """
       lift {
         var i = 0
+        def c() = i += 1
         try unlift(one)
-        finally i += 1
+        finally {
+          c()
+        }
         i
       }
       """ mustNot compile
@@ -83,9 +86,12 @@ class MonadlessApplicativeSpec
       """
       lift {
         var i = 0
+        def c() = i += 1
         try {
           try unlift(one) / fail[Int]
-          finally i += 1
+          finally {
+            c()
+          }
         } catch {
           case e: Exception => 1
         }

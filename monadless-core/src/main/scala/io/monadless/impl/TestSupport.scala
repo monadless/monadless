@@ -34,7 +34,7 @@ private[monadless] class TestSupportMacro(val c: Context) {
       }
     }
 
-  def runLiftTest[M[_], T](expected: Tree)(body: Tree)(implicit m: WeakTypeTag[M[_]], t: WeakTypeTag[T]): Tree =
+  def runLiftTest[M[_], T](expected: Tree)(body: Tree): Tree =
     c.resetAllAttrs {
 
       val lifted =

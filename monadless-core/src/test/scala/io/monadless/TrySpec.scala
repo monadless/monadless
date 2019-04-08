@@ -62,32 +62,36 @@ class TrySpec extends Spec {
     "pure" in
       runLiftTest(true) {
         var called = false
+        def c(): Unit = called = true
         val _ =
           try unlift(lift(1))
           finally {
-            called = true
+            c()
           }
         called
       }
     "without catch" in
       runLiftTest(true) {
         var called = false
+        def c() = called = unlift(lift(true))
         try
           unlift(lift(1))
-        finally
-          called = unlift(lift(true))
+        finally {
+          c()
+        }
         called
       }
     "as the only impure" in
       runLiftTest(true) {
         var called = false
+        def c() = called = unlift(lift(true))
         val _ =
           try 1
           catch {
             case `e`          => 2
             case _: Throwable => 3
           } finally {
-            called = unlift(lift(true))
+            c()
           }
         called
       }

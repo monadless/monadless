@@ -3,6 +3,8 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import scalariform.formatter.preferences._
 import sbtrelease.ReleasePlugin
 
+enablePlugins(TutPlugin)
+
 lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
   def projectDir(crossBase: File, projectType: String): File =
     projectType match {
@@ -159,8 +161,7 @@ def updateWebsiteTag =
   })
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.11.8", "2.12.1"),
+  scalaVersion := "2.12.8",
   organization := "io.monadless",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(
@@ -254,7 +255,7 @@ lazy val `tut-sources` = Seq(
 )
 
 lazy val `tut-settings` = Seq(
-  tutScalacOptions := Seq(),
+  scalacOptions := Seq(),
   tutSourceDirectory := baseDirectory.value / "target" / "tut",
   tutNameFilter := `tut-sources`.map(_.replaceAll("""\.""", """\.""")).mkString("(", "|", ")").r,
   sourceGenerators in Compile +=

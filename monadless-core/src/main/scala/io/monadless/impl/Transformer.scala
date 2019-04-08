@@ -116,7 +116,6 @@ private[monadless] object Transformer {
               case List((tree, name, tpe)) => Some(q"${Resolve.map(tree.pos, tree)}(${toVal(name)} => $newTree)")
               case unlifts =>
                 val (trees, names, types) = unlifts.unzip3
-                val binds = names.map(name => pq"$name @ _")
                 val list = freshName("list")
                 val iterator = freshName("iterator")
                 val collect = q"${Resolve.collect(tree.pos)}(scala.List(..$trees))"
@@ -390,10 +389,6 @@ private[monadless] object Transformer {
     def freshName(x: String = "x") = TermName(c.freshName(x))
     def monadType(tpe: Type) = tq"${c.prefix}.M[$tpe]"
     def unitMonadType = monadType(c.typeOf[Unit])
-    def debug[T](v: T) = {
-      c.warning(c.enclosingPosition, v.toString)
-      v
-    }
 
     c.resetAllAttrs {
       TransformDefs(Validate(tree)) match {

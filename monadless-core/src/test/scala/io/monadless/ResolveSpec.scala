@@ -69,7 +69,9 @@ class ResolveSpec
     "ensure" in {
       val m = lift {
         try unlift(lift(1))
-        finally println(1)
+        finally {
+          println(1)
+        }
       }
       m.calls mustEqual List("WithMonadMethods.apply", "WithMonadMethods.ensure")
     }
@@ -131,7 +133,9 @@ class ResolveSpec
     "ensure" in {
       val m = lift {
         try unlift(lift(1))
-        finally println(1)
+        finally {
+          println(1)
+        }
       }
       m.calls mustEqual List("monadless.apply", "monadless.ensure")
     }
@@ -193,7 +197,9 @@ class ResolveSpec
     "ensure" in {
       val m = lift {
         try unlift(lift(1))
-        finally println(1)
+        finally {
+          println(1)
+        }
       }
       m.calls mustEqual List("monadless.apply", "monadless.ensure")
     }
@@ -208,9 +214,9 @@ class ResolveSpec
     }
 
     "collect" in {
-      val a = new WithoutMonadMethods[Int](Nil)
-      val b = new WithoutMonadMethods[Int](Nil)
       """
+    	val a = new WithoutMonadMethods[Int](Nil)
+    	val b = new WithoutMonadMethods[Int](Nil)
       lift {
         (unlift(a), unlift(b))
       }
@@ -218,8 +224,8 @@ class ResolveSpec
     }
 
     "map" in {
-      val a = new WithoutMonadMethods[Int](Nil)
       """
+    	val a = new WithoutMonadMethods[Int](Nil)
       lift {
         val b = unlift(a)
         b + 1
@@ -228,9 +234,9 @@ class ResolveSpec
     }
 
     "flatMap" in {
-      val a = new WithoutMonadMethods[Int](Nil)
-      val b = new WithoutMonadMethods[Int](Nil)
       """
+    	val a = new WithoutMonadMethods[Int](Nil)
+    	val b = new WithoutMonadMethods[Int](Nil)
       lift {
         unlift(a)
         unlift(b)
@@ -239,8 +245,8 @@ class ResolveSpec
     }
 
     "rescue" in {
-      val a = new WithoutMonadMethods[Int](Nil)
       """
+    	val a = new WithoutMonadMethods[Int](Nil)
       lift {
         try unlift(a)
         catch {
@@ -251,11 +257,13 @@ class ResolveSpec
     }
 
     "ensure" in {
-      val a = new WithoutMonadMethods[Int](Nil)
       """
+    	val a = new WithoutMonadMethods[Int](Nil)
       lift {
         try unlift(a)
-        finally println(1)
+        finally {
+          println(1)
+        }
       }
       """ mustNot compile
     }
