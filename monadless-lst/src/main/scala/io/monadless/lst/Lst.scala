@@ -79,12 +79,20 @@ sealed trait Lst[S <: Stack[Any], +T] {
       effect(effect.lift(cont)).flatMap {
         case Right(f) => Sync(Left(f))
         case Left(r) =>
-          r.map {
-            case Left(v) => Left(effect.point(v))
+          r.flatMap {
+            case Left(v) => Sync(Left(effect.point(v)))
             case Right(ev) =>
               ev.effect(stack) match {
-                case e if effect == e => Left(ev.v.asInstanceOf[F[U]])
-                case _                => Right(ev)
+                case e if effect == e =>
+                  Sync(Left(ev.v.asInstanceOf[F[U]]))
+                case _ =>
+                  def apply[G[+_]](nestedEffect: Effect[G], v: G[U]) =
+                    nestedEffect(v).map {
+                      case Left(v)  => Left(effect.point(v))
+                      case Right(f) => Right(Lst.EffValue[S, Any, Any](ev.effect, f))
+                    }
+                  val r = apply[Any](ev.effect(stack), ev.v).asInstanceOf[Result[Either[F[U], Lst.EffValue[S, Any, U]]]]
+                  r
               }
           }
       }
@@ -117,7 +125,7 @@ sealed trait Lst[S <: Stack[Any], +T] {
 
     val extracted =
       result.map {
-        case Left(f) => 
+        case Left(f) =>
           f
         case Right(ev) =>
           fail(s"Lst bug: effect not handled ${ev.v}")
