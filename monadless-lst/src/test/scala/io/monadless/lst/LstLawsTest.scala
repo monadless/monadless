@@ -7,45 +7,50 @@ import scala.util.Try
 import scala.util.Success
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import Effects._
+import cats.tests.CatsSuite
+import cats.laws.discipline.MonadTests
+import cats.Monad
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import cats.kernel.Eq
+import org.scalacheck.Cogen
+import cats.laws.discipline.SemigroupalTests.Isomorphisms
 
-object LstLawsTest extends App {
-  val optionEffect = new SyncEffect[Option] {
-    def point[T](v: T) = Some(v)
-    def lift[T](v: => T) = Option(v)
-    def apply[T](o: Option[T]) =
-      o match {
-        case Some(v) => Sync(Left(v))
-        case None    => Sync(Right(None))
+class LstLawsTest extends CatsSuite {
+
+  type TryOptionLst[T] = Lst[Stack.Two[Try, Option], T]
+
+  implicit val tryOptionLstMonad = new Monad[TryOptionLst] {
+    def pure[A](x: A) = Lst.point(x)
+    def flatMap[A, B](fa: TryOptionLst[A])(f: A => TryOptionLst[B]) = fa.flatMap(f)
+    def tailRecM[A, B](a: A)(f: A => TryOptionLst[Either[A, B]]) =
+      f(a).flatMap {
+        case Left(v)  => tailRecM(v)(f)
+        case Right(v) => Lst.point(v)
       }
   }
 
-  val tryEffect = new SyncEffect[Try] {
-    def point[T](v: T) = Success(v)
-    def lift[T](v: => T) = Try(v)
-    def apply[T](o: Try[T]) =
-      o match {
-        case Success(v)  => Sync(Left(v))
-        case Failure(ex) => Sync(Right(Failure(ex)))
-      }
-  }
+  val stack = Stack.Two(tryEffect, optionEffect)
+  val eff = Lst[Stack.Two[Try, Option]]
 
-  val futureEffect = new AsyncEffect[Future] {
-    import scala.concurrent.ExecutionContext.Implicits.global
-    def point[T](v: T) = Future.successful(v)
-    def lift[T](v: => T) = Future(v)
-    def async[T](r: Async[Future[T]]): Future[T] = {
-      val p = Promise[T]()
-      r.cb(p.completeWith(_))
-      p.future
+  implicit def tryOptionLstArbitrary[T](implicit o: Arbitrary[Option[T]], t: Arbitrary[Try[T]]): Arbitrary[TryOptionLst[T]] =
+    Arbitrary {
+      implicitly[Arbitrary[Int]].arbitrary.flatMap(i => Gen.oneOf[TryOptionLst[T]](o.arbitrary.map(eff(_)), t.arbitrary.map(eff(_))))
     }
-    def apply[T](o: Future[T]) =
-      Async { f =>
-        o.onComplete {
-          case Success(v)  => f(Left(v))
-          case Failure(ex) => f(Right(Future.failed(ex)))
-        }
-      }
+
+  implicit def tryOptionLstEq[T]: Eq[TryOptionLst[T]] = Eq.instance {
+    (a, b) =>
+      val x = a.run(stack)
+      val y = b.run(stack)
+      if(x != y)
+        println(1)
+      x == y
   }
+
+  implicit val iso = Isomorphisms.invariant[TryOptionLst]
+
+  checkAll("TryOptionLst[Int]", MonadTests[TryOptionLst].monad[Int, Int, Int])
 
   val v1 = Option(1)
   val v2 = Try(2)

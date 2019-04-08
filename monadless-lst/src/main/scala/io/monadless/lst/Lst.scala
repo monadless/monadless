@@ -82,9 +82,9 @@ sealed trait Lst[S <: Stack[Any], +T] {
           r.map {
             case Left(v) => Left(effect.point(v))
             case Right(ev) =>
-              ev.effect match {
-                case `effect` => Left(ev.v.asInstanceOf[F[U]])
-                case _        => Right(ev)
+              ev.effect(stack) match {
+                case e if effect == e => Left(ev.v.asInstanceOf[F[U]])
+                case _                => Right(ev)
               }
           }
       }
@@ -117,8 +117,10 @@ sealed trait Lst[S <: Stack[Any], +T] {
 
     val extracted =
       result.map {
-        case Left(f)   => f
-        case Right(ev) => fail(s"Lst bug: effect not handled ${ev.v}")
+        case Left(f) => 
+          f
+        case Right(ev) =>
+          fail(s"Lst bug: effect not handled ${ev.v}")
       }
 
     extracted match {
@@ -136,14 +138,12 @@ sealed trait Lst[S <: Stack[Any], +T] {
 }
 
 object Lst {
-  class Unlift[S <: Stack[Any]] {
+  class LstStack[S <: Stack[Any]] {
+    def apply[T](f: LstStack[S] => Lst[S, T]) = f(this)
     def apply[F[+_], T](v: F[T])(implicit cont: S => Effect[F]) =
       EffValue(cont, v)
   }
-  class StackBuilder[S <: Stack[Any]] {
-    def apply[T](f: Unlift[S] => Lst[S, T]) = f(new Unlift[S])
-  }
-  def apply[S <: Stack[Any]] = new StackBuilder[S]
+  def apply[S <: Stack[Any]] = new LstStack[S]
   def point[S <: Stack[Any], T](v: T): Lst[S, T] = Point[S, T](v)
 
   sealed trait Value[S <: Stack[Any], T] extends Lst[S, T]
