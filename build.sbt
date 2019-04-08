@@ -162,6 +162,7 @@ def updateWebsiteTag =
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.8",
+  crossScalaVersions := Seq("2.12.8"),
   organization := "io.monadless",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(
