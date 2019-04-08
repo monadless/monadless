@@ -1,101 +1,115 @@
 package io.monadless.lst
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.Failure
 import scala.util.Try
-import scala.util.Success
-import scala.concurrent.Future
-import scala.concurrent.Promise
-import Effects._
-import cats.tests.CatsSuite
-import cats.laws.discipline.MonadTests
-import cats.Monad
+
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
+
+import Effects.optionEffect
+import Effects.tryEffect
+import cats.Monad
 import cats.kernel.Eq
-import org.scalacheck.Cogen
+import cats.laws.discipline.MonadTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
+import cats.tests.CatsSuite
 
 class LstLawsTest extends CatsSuite {
 
-  type TryOptionLst[T] = Lst[Stack.Two[Try, Option], T]
+  abstract class Test[ST <: Stack[Any]](stack: ST) {
+    type S = ST
+    type F[T] = Lst[S, T]
 
-  implicit val tryOptionLstMonad = new Monad[TryOptionLst] {
-    def pure[A](x: A) = Lst.point(x)
-    def flatMap[A, B](fa: TryOptionLst[A])(f: A => TryOptionLst[B]) = fa.flatMap(f)
-    def tailRecM[A, B](a: A)(f: A => TryOptionLst[Either[A, B]]) =
-      f(a).flatMap {
-        case Left(v)  => tailRecM(v)(f)
-        case Right(v) => Lst.point(v)
-      }
-  }
-
-  val stack = Stack.Two(tryEffect, optionEffect)
-  val eff = Lst[Stack.Two[Try, Option]]
-
-  implicit def tryOptionLstArbitrary[T](implicit o: Arbitrary[Option[T]], t: Arbitrary[Try[T]]): Arbitrary[TryOptionLst[T]] =
-    Arbitrary {
-      implicitly[Arbitrary[Int]].arbitrary.flatMap(i => Gen.oneOf[TryOptionLst[T]](o.arbitrary.map(eff(_)), t.arbitrary.map(eff(_))))
+    implicit val monad = new Monad[F] {
+      def pure[A](x: A) = Lst.point(x)
+      def flatMap[A, B](fa: F[A])(f: A => F[B]) = fa.flatMap(f)
+      def tailRecM[A, B](a: A)(f: A => F[Either[A, B]]) =
+        f(a).flatMap {
+          case Left(v)  => tailRecM(v)(f)
+          case Right(v) => Lst.point(v)
+        }
     }
 
-  implicit def tryOptionLstEq[T]: Eq[TryOptionLst[T]] = Eq.instance {
-    (a, b) =>
-      val x = a.run(stack)
-      val y = b.run(stack)
-      if(x != y)
-        println(1)
-      x == y
+    val eff = Lst[S]
+
+    def eq[T](a: S#F[T], b: S#F[T]): Boolean
+
+    implicit def feq[T]: Eq[F[T]] = Eq.instance {
+      (a, b) =>
+        val x = a.run(stack)
+        val y = b.run(stack)
+        eq(x, y)
+    }
+
+    implicit val iso = Isomorphisms.invariant[F]
   }
 
-  implicit val iso = Isomorphisms.invariant[TryOptionLst]
-
-  checkAll("TryOptionLst[Int]", MonadTests[TryOptionLst].monad[Int, Int, Int])
-
-  val v1 = Option(1)
-  val v2 = Try(2)
-  val v3 = Option(3)
-  val v4 = Try(3)
-  val v5 = Future.successful(5)
-
-  {
-    val eff =
-      Lst[Stack.Two[Try, Option]] { eff =>
-        for {
-          v1 <- eff(v1)
-          x = v1 + 1
-          v2 <- eff(v2)
-          y = v2 + 1
-          v3 <- eff(v3)
-          z = v3 + 3
-          v4 <- eff(v4)
-          h = v4 + 3
-        } yield v1 + y + z + h
+  new Test(Stack.Two(tryEffect, optionEffect)) {
+    def eq[T](a: S#F[T], b: S#F[T]) = a == b
+    implicit def fArbitrary[T](implicit o: Arbitrary[Option[T]], t: Arbitrary[Try[T]]): Arbitrary[F[T]] =
+      Arbitrary {
+        implicitly[Arbitrary[Int]].arbitrary.flatMap(i => Gen.oneOf[F[T]](o.arbitrary.map(eff(_)), t.arbitrary.map(eff(_))))
       }
-
-    val r = eff.run(Stack.Two(tryEffect, optionEffect))
-    println(r)
+    checkAll("Try[Option[T]]", MonadTests[F].monad[Int, Int, Int])
   }
 
-  {
-    val eff =
-      Lst[Stack.Three[Future, Try, Option]] { eff =>
-        for {
-          v1 <- eff(v1)
-          x = v1 + 1
-          v2 <- eff(v2)
-          y = v2 + 1
-          v3 <- eff(v3)
-          z = v3 + 3
-          v4 <- eff(v4)
-          h = v4 + 3
-          v5 <- eff(v5)
-          k = v5 + 1
-        } yield v1 + y + z + h + k
+  new Test(Stack.Two(optionEffect, tryEffect)) {
+    def eq[T](a: S#F[T], b: S#F[T]) = a == b
+    implicit def fArbitrary[T](implicit o: Arbitrary[Option[T]], t: Arbitrary[Try[T]]): Arbitrary[F[T]] =
+      Arbitrary {
+        implicitly[Arbitrary[Int]].arbitrary.flatMap(i => Gen.oneOf[F[T]](o.arbitrary.map(eff(_)), t.arbitrary.map(eff(_))))
       }
-
-    val r = eff.run(Stack.Three(futureEffect, tryEffect, optionEffect))
-    val a = Await.result(r, Duration.Inf)
-    println(a)
+    checkAll("Option[Try[T]]", MonadTests[F].monad[Int, Int, Int])
   }
+
+  //  new Test(Stack.Two(futureEffect, optionEffect)) {
+  //    def eq[T](a: S#F[T], b: S#F[T]) = {
+  //      val ax = Try(Await.result(a, Duration.Inf))
+  //      val bx = Try(Await.result(b, Duration.Inf))
+  //      if(ax != bx)
+  //        println(1)
+  //      ax == bx
+  //    }
+  //    implicit def fArbitrary[T](implicit o: Arbitrary[Option[T]], t: Arbitrary[Future[T]]): Arbitrary[F[T]] =
+  //      Arbitrary {
+  //        implicitly[Arbitrary[Int]].arbitrary.flatMap(i => Gen.oneOf[F[T]](o.arbitrary.map(eff(_)), t.arbitrary.map(eff(_))))
+  //      }
+  //    checkAll("Future[Option[T]]", MonadTests[F].monad[Int, Int, Int])
+  //  }
+
+  //  def tryOption() = {
+  //
+  //    type F[T] = Lst[Stack.Two[Try, Option], T]
+  //
+  //    implicit val tryOptionLstMonad = new Monad[F] {
+  //      def pure[A](x: A) = Lst.point(x)
+  //      def flatMap[A, B](fa: F[A])(f: A => F[B]) = fa.flatMap(f)
+  //      def tailRecM[A, B](a: A)(f: A => F[Either[A, B]]) =
+  //        f(a).flatMap {
+  //          case Left(v)  => tailRecM(v)(f)
+  //          case Right(v) => Lst.point(v)
+  //        }
+  //    }
+  //
+  //    val stack = Stack.Two(tryEffect, optionEffect)
+  //    val eff = Lst[Stack.Two[Try, Option]]
+  //
+  //    implicit def tryOptionLstArbitrary[T](implicit o: Arbitrary[Option[T]], t: Arbitrary[Try[T]]): Arbitrary[F[T]] =
+  //      Arbitrary {
+  //        implicitly[Arbitrary[Int]].arbitrary.flatMap(i => Gen.oneOf[F[T]](o.arbitrary.map(eff(_)), t.arbitrary.map(eff(_))))
+  //      }
+  //
+  //    implicit def tryOptionLstEq[T]: Eq[F[T]] = Eq.instance {
+  //      (a, b) =>
+  //        val x = a.run(stack)
+  //        val y = b.run(stack)
+  //        if (x != y)
+  //          println(1)
+  //        x == y
+  //    }
+  //
+  //    implicit val iso = Isomorphisms.invariant[F]
+  //
+  //    checkAll("Try >> Option", MonadTests[F].monad[Int, Int, Int])
+  //  }
+
 }

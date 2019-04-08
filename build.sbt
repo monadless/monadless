@@ -21,7 +21,7 @@ lazy val `monadless` =
     .settings(commonSettings)
     .aggregate(
       `monadless-core-jvm`, `monadless-core-js`, 
-      `monadless-lst-jvm`, `monadless-lst-js`,
+      `monadless-lst-jvm`, //`monadless-lst-js`,
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`, 
@@ -29,7 +29,7 @@ lazy val `monadless` =
     )
     .dependsOn(
       `monadless-core-jvm`, `monadless-core-js`,
-      `monadless-lst-jvm`, `monadless-lst-js`,
+      `monadless-lst-jvm`, //`monadless-lst-js`,
       `monadless-stdlib-jvm`, `monadless-stdlib-js`,
       `monadless-cats-jvm`, `monadless-cats-js`, 
       `monadless-monix-jvm`, `monadless-monix-js`,
@@ -51,7 +51,7 @@ lazy val `monadless-lst` =
     )
 
 lazy val `monadless-lst-jvm` = `monadless-lst`.jvm
-lazy val `monadless-lst-js` = `monadless-lst`.js
+// lazy val `monadless-lst-js` = `monadless-lst`.js
 
 lazy val `monadless-core` = 
   crossProject.crossType(superPure)
