@@ -42,7 +42,7 @@ lazy val `monadless-lst` =
     .settings(
       name := "monadless-lst",
       libraryDependencies ++= Seq(
-        "org.typelevel" %% "cats-testkit" % "1.6.0" % "test", 
+        "org.typelevel" %% "cats-testkit" % "1.6.1" % "test", 
         "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
