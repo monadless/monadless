@@ -1,6 +1,5 @@
 package io.monadless.impl
 
-import language.higherKinds
 import scala.reflect.macros.blackbox.Context
 import org.scalamacros.resetallattrs._
 
@@ -55,7 +54,7 @@ private[monadless] object Transformer {
 
           case q"do $body while($cond)" =>
             val name = TermName(c.freshName("doWhile"))
-            val newBody = Transform(q"{ $body; if($cond) ${c.prefix}.unlift[scala.Unit]($name()) else ${Resolve.apply(tree.pos)}(scala.Unit) }")
+            val newBody = Transform(q"{ $body; if($cond) ${c.prefix}.unlift[scala.Unit]($name()) else ${Resolve.apply(tree.pos)}(()) }")
             Some(q"{ def $name(): $unitMonadType = $newBody; $name() }")
 
           case q"$a && $b" =>

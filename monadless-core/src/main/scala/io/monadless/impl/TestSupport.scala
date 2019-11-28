@@ -3,7 +3,6 @@ package io.monadless.impl
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox.Context
 import org.scalamacros.resetallattrs._
-import language.higherKinds
 import scala.reflect.macros.TypecheckException
 
 private[monadless] trait TestSupport[M[_]] {

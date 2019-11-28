@@ -1,6 +1,5 @@
 package io.monadless.cats
 
-import language.higherKinds
 import io.monadless.Monadless
 import cats.Applicative
 import cats.Traverse
