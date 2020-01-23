@@ -18,4 +18,4 @@ addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.14")
 
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.26")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.32")
