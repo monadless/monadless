@@ -347,7 +347,7 @@ trait M[A] {
 object M {
 
   // Creates a monad instance with the result of `f`
-  def apply[A](f: => T): M[A]
+  def apply[A](f: => A): M[A]
 
   // Transforms multiple monad instances into one.
   def collect[A](l: List[M[A]]): M[List[A]]
