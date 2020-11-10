@@ -1,6 +1,5 @@
 package io.monadless.impl
 
-import language.higherKinds
 import scala.reflect.macros.blackbox.Context
 import scala.reflect.macros.TypecheckException
 

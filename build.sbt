@@ -42,8 +42,9 @@ lazy val `monadless-lst` =
     .settings(
       name := "monadless-lst",
       libraryDependencies ++= Seq(
-        "org.typelevel" %% "cats-testkit" % "1.6.0" % "test", 
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
+        "org.typelevel" %% "discipline-scalatest" % "1.0.0-RC1" % Test,
+        "org.typelevel" %% "cats-testkit" % "2.0.0" % "test",
+        "org.scalatest" %%% "scalatest" % "3.0.8" % "test"),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -61,7 +62,7 @@ lazy val `monadless-core` =
       libraryDependencies ++= Seq(
         "org.scalamacros" %% "resetallattrs" % "1.0.0",
         "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
+        "org.scalatest" %%% "scalatest" % "3.0.8" % "test"),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -77,7 +78,7 @@ lazy val `monadless-stdlib` =
     .settings(commonSettings)
     .settings(
       name := "monadless-stdlib",
-      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.8" % "test",
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -95,8 +96,8 @@ lazy val `monadless-cats` =
     .settings(
       name := "monadless-cats",
       libraryDependencies ++= Seq(
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
-        "org.typelevel" %%% "cats-core" % "1.5.0"
+        "org.scalatest" %%% "scalatest" % "3.0.8" % "test",
+        "org.typelevel" %%% "cats-core" % "2.0.0"
       ),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
@@ -115,8 +116,8 @@ lazy val `monadless-monix` =
     .settings(
       name := "monadless-monix",
       libraryDependencies ++= Seq(
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
-        "io.monix" %%% "monix" % "2.2.4"
+        "org.scalatest" %%% "scalatest" % "3.0.8" % "test",
+        "io.monix" %%% "monix" % "3.1.0"
       ),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
@@ -132,8 +133,8 @@ lazy val `monadless-algebird` = project
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.twitter" %% "algebird-core" % "0.13.0",
-      "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
+      "com.twitter" %% "algebird-core" % "0.13.6",
+      "org.scalatest" %%% "scalatest" % "3.0.8" % "test"
     )
   )
 
@@ -141,8 +142,9 @@ lazy val `monadless-examples` = project
   .dependsOn(`monadless-stdlib-jvm`)
   .settings(commonSettings)
   .settings(
-    libraryDependencies += "com.typesafe.play" %% "play-ahc-ws" % "2.6.0-M4",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.6")
+    libraryDependencies += "org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0",
+    libraryDependencies += "com.typesafe.play" %% "play-ahc-ws" % "2.7.3",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.10.0")
 
 def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
   ReleaseStep(action = st => {
@@ -179,8 +181,8 @@ def updateWebsiteTag =
   })
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.12.8"),
+  scalaVersion := "2.13.1",
+  crossScalaVersions := Seq("2.13.1","2.12.8"),
   organization := "io.monadless",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(
@@ -190,10 +192,10 @@ lazy val commonSettings = Seq(
     "-feature",
     "-unchecked",
     "-Xlint",
-    "-Yno-adapted-args",
-    "-Ywarn-numeric-widen",
-    "-Xfuture",
-    "-Ywarn-unused-import"),
+    "-Ywarn-numeric-widen") ++ (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2,13)) => Seq()
+    case _ => Seq("-language:higherKinds","-Yno-adapted-args","-Xfuture","-Ywarn-unused-import")
+  }),
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
     .setPreference(AlignParameters, true)
     .setPreference(CompactStringConcatenation, false)

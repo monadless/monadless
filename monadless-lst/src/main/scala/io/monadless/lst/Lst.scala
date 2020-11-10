@@ -2,7 +2,6 @@ package io.monadless.lst
 
 import scala.Left
 import scala.Right
-import language.higherKinds
 import language.implicitConversions
 
 trait Effect[F[+_]] {

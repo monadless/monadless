@@ -3,7 +3,6 @@ package io.monadless.monix
 import java.util.concurrent.TimeUnit
 
 import org.scalatest.MustMatchers
-
 import io.monadless.impl.TestSupport
 import monix.eval.Task
 import monix.execution.Cancelable
@@ -25,8 +24,10 @@ class MonadlessTaskSpec
     def reportFailure(t: Throwable): Unit = {}
   }
 
-  def get[T](f: Task[T]) =
-    f.runSyncMaybe.right.get
+  final def get[T](f: Task[T]): T = {
+    f.runToFuture.value.get.get
+
+  }
 
   def fail[T]: T = throw new Exception
 

@@ -1,7 +1,6 @@
 package io.monadless
 
 import language.experimental.macros
-import language.higherKinds
 
 trait Monadless[Monad[_]] {
 

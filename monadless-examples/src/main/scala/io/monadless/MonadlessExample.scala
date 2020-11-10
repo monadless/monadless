@@ -125,7 +125,7 @@ object ControlExample extends App with ExampleHelper {
 
   // What if you want to implement a loop
   val listResults: Future[List[Int]] = lift {
-    val mutableList: mutable.MutableList[Int] = mutable.MutableList()
+    val mutableList: mutable.Buffer[Int] = mutable.Buffer()
 
     do {
       mutableList += unlift(goodRequest.get).status

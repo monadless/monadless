@@ -1,6 +1,5 @@
 package io.monadless.algebird
 
-import language.higherKinds
 import io.monadless.Monadless
 import com.twitter.algebird.Applicative
 

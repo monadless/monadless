@@ -1,7 +1,5 @@
 package io.monadless.cats
 
-import scala.language.higherKinds
-
 import cats.Monad
 
 trait MonadlessMonad[M[_]] extends MonadlessApplicative[M] {

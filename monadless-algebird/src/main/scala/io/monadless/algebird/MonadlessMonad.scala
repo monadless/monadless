@@ -1,6 +1,5 @@
 package io.monadless.algebird
 
-import scala.language.higherKinds
 import com.twitter.algebird.Monad
 
 trait MonadlessMonad[M[_]] extends MonadlessApplicative[M] {

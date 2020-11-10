@@ -11,13 +11,14 @@ class UnsupportedSpec extends Spec {
   }
 
   "return" - {
+    /* TODO: return statement uses an exception to pass control to the caller of the enclosing named method t
     "only" in pendingUntilFixed {
       def t: Any =
         runLiftTest(1) {
           return 1
         }
       t
-    }
+    }*/
     "nested" in pendingUntilFixed {
       runLiftTest(1) {
         def t: Int = return 1

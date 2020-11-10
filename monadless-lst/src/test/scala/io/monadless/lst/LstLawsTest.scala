@@ -1,19 +1,21 @@
 package io.monadless.lst
 
 import scala.util.Try
-
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-
 import Effects.optionEffect
 import Effects.tryEffect
 import cats.Monad
 import cats.kernel.Eq
 import cats.laws.discipline.MonadTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
-import cats.tests.CatsSuite
+import org.scalatest.funsuite.AnyFunSuiteLike
+import org.typelevel.discipline.scalatest.Discipline
+//import cats.tests.CatsSuite
+//import org.scalatestplus.scalacheck.Checkers
+import cats.implicits._
 
-class LstLawsTest extends CatsSuite {
+class LstLawsTest extends AnyFunSuiteLike with Discipline {
 
   abstract class Test[ST <: Stack[Any]](stack: ST) {
     type S = ST
