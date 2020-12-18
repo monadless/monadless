@@ -43,7 +43,7 @@ lazy val `monadless-lst` =
       name := "monadless-lst",
       libraryDependencies ++= Seq(
         "org.typelevel" %% "cats-testkit" % "1.6.0" % "test", 
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
+        "org.scalatest" %%% "scalatest" % "3.0.9" % "test"),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -61,7 +61,7 @@ lazy val `monadless-core` =
       libraryDependencies ++= Seq(
         "org.scalamacros" %% "resetallattrs" % "1.0.0",
         "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test"),
+        "org.scalatest" %%% "scalatest" % "3.0.9" % "test"),
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -77,7 +77,7 @@ lazy val `monadless-stdlib` =
     .settings(commonSettings)
     .settings(
       name := "monadless-stdlib",
-      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.9" % "test",
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -95,7 +95,7 @@ lazy val `monadless-cats` =
     .settings(
       name := "monadless-cats",
       libraryDependencies ++= Seq(
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+        "org.scalatest" %%% "scalatest" % "3.0.9" % "test",
         "org.typelevel" %%% "cats-core" % "1.5.0"
       ),
       scoverage.ScoverageKeys.coverageMinimum := 96,
@@ -115,7 +115,7 @@ lazy val `monadless-monix` =
     .settings(
       name := "monadless-monix",
       libraryDependencies ++= Seq(
-        "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+        "org.scalatest" %%% "scalatest" % "3.0.9" % "test",
         "io.monix" %%% "monix" % "2.2.4"
       ),
       scoverage.ScoverageKeys.coverageMinimum := 96,
@@ -133,7 +133,7 @@ lazy val `monadless-algebird` = project
   .settings(
     libraryDependencies ++= Seq(
       "com.twitter" %% "algebird-core" % "0.13.0",
-      "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
+      "org.scalatest" %%% "scalatest" % "3.0.9" % "test"
     )
   )
 
