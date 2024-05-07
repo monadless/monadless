@@ -277,7 +277,7 @@ lazy val `tut-settings` = Seq(
   scalacOptions := Seq(),
   tutSourceDirectory := baseDirectory.value / "target" / "tut",
   tutNameFilter := `tut-sources`.map(_.replaceAll("""\.""", """\.""")).mkString("(", "|", ")").r,
-  sourceGenerators in Compile +=
+  (Compile / sourceGenerators) +=
     Def.task {
       `tut-sources`.foreach { name =>
         val source = baseDirectory.value / name
